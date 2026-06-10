@@ -3514,8 +3514,7 @@ textarea:focus-visible {
 
 @media (max-width: 640px) {
   .top-ticker {
-    padding: 8px 10px;
-    overflow-x: auto;
+    display: none;
   }
 
   .site-header {
