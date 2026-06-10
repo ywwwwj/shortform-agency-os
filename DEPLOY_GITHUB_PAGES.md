@@ -36,10 +36,10 @@ cd "C:\Users\34054\Desktop\ai模板网站\public-site"
 & 'C:\Program Files\GitHub CLI\gh.exe' api repos/:owner/shortform-agency-os/pages -X POST -f source.branch=master -f source.path=/
 ```
 
-Expected URL:
+Live URL:
 
 ```text
-https://YOUR_GITHUB_USERNAME.github.io/shortform-agency-os/
+https://ywwwwj.github.io/shortform-agency-os/
 ```
 
 GitHub Pages can take 1-5 minutes to become available after enabling.
