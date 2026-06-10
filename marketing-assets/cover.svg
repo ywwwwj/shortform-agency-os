@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff7e8"/>
+      <stop offset="0.55" stop-color="#eadcc2"/>
+      <stop offset="1" stop-color="#dce8d1"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="28" stdDeviation="32" flood-color="#11120f" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <g opacity="0.18" stroke="#11120f">
+    <path d="M0 100h1600M0 200h1600M0 300h1600M0 400h1600M0 500h1600M0 600h1600M0 700h1600M0 800h1600M0 900h1600"/>
+    <path d="M100 0v1000M200 0v1000M300 0v1000M400 0v1000M500 0v1000M600 0v1000M700 0v1000M800 0v1000M900 0v1000M1000 0v1000M1100 0v1000M1200 0v1000M1300 0v1000M1400 0v1000M1500 0v1000"/>
+  </g>
+  <circle cx="1360" cy="130" r="210" fill="#c7ff4f" opacity="0.6"/>
+  <circle cx="210" cy="850" r="260" fill="#ff5b4a" opacity="0.24"/>
+  <text x="120" y="150" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#ff5b4a" letter-spacing="6">SHORTFORM STUDIO KIT</text>
+  <text x="120" y="260" font-family="Arial Black, Arial, sans-serif" font-size="104" font-weight="900" fill="#11120f">ViralCraft</text>
+  <text x="120" y="365" font-family="Arial Black, Arial, sans-serif" font-size="104" font-weight="900" fill="#11120f">Agency Template</text>
+  <text x="126" y="430" font-family="Arial, sans-serif" font-size="30" fill="#70695f">8-page website template for UGC, AI video, and creator growth agencies.</text>
+  <g filter="url(#shadow)">
+    <rect x="730" y="200" width="720" height="520" rx="0" fill="#11120f"/>
+    <rect x="760" y="240" width="660" height="450" fill="#fffaf0"/>
+    <rect x="790" y="270" width="250" height="40" fill="#11120f"/>
+    <rect x="790" y="340" width="440" height="48" fill="#c7ff4f"/>
+    <rect x="790" y="410" width="530" height="28" fill="#eadcc2"/>
+    <rect x="790" y="460" width="170" height="82" fill="#ff5b4a"/>
+    <rect x="980" y="460" width="170" height="82" fill="#1d46ff"/>
+    <rect x="1170" y="460" width="170" height="82" fill="#c7ff4f"/>
+    <rect x="790" y="575" width="550" height="70" fill="#11120f"/>
+  </g>
+  <g transform="translate(120 760)">
+    <rect width="220" height="64" fill="#c7ff4f" stroke="#11120f"/>
+    <text x="34" y="42" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#11120f">8 pages</text>
+    <rect x="240" width="300" height="64" fill="#fffaf0" stroke="#11120f"/>
+    <text x="274" y="42" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#11120f">Style Guide</text>
+    <rect x="560" width="360" height="64" fill="#fffaf0" stroke="#11120f"/>
+    <text x="594" y="42" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#11120f">Copy Generator</text>
+  </g>
+</svg>

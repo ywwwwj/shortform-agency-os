@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <rect width="1600" height="1000" fill="#11120f"/>
+  <circle cx="1300" cy="160" r="230" fill="#c7ff4f" opacity="0.22"/>
+  <text x="100" y="130" font-family="Arial Black, Arial, sans-serif" font-size="72" fill="#fffaf0">8-page template pack</text>
+  <text x="104" y="185" font-family="Arial, sans-serif" font-size="28" fill="#bdb6a9">Home, Services, Case Study, Pricing, About, Contact, Style Guide, 404.</text>
+  <g font-family="Arial, sans-serif" font-weight="700">
+    <g transform="translate(100 260)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">Home</text><rect x="28" y="94" width="220" height="24" fill="#c7ff4f"/><rect x="28" y="136" width="150" height="46" fill="#ff5b4a"/></g>
+    <g transform="translate(450 260)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">Services</text><rect x="28" y="94" width="250" height="24" fill="#1d46ff"/><rect x="28" y="136" width="70" height="46" fill="#c7ff4f"/><rect x="112" y="136" width="70" height="46" fill="#ff5b4a"/></g>
+    <g transform="translate(800 260)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">Case Study</text><rect x="28" y="94" width="70" height="70" fill="#11120f"/><rect x="118" y="94" width="70" height="70" fill="#c7ff4f"/><rect x="208" y="94" width="70" height="70" fill="#ff5b4a"/></g>
+    <g transform="translate(1150 260)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">Pricing</text><rect x="28" y="94" width="70" height="90" fill="#eadcc2"/><rect x="118" y="74" width="70" height="110" fill="#11120f"/><rect x="208" y="94" width="70" height="90" fill="#eadcc2"/></g>
+    <g transform="translate(100 540)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">About</text><rect x="28" y="94" width="250" height="20" fill="#ff5b4a"/><rect x="28" y="130" width="210" height="20" fill="#eadcc2"/></g>
+    <g transform="translate(450 540)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">Contact</text><rect x="28" y="94" width="250" height="30" fill="#eadcc2"/><rect x="28" y="140" width="250" height="30" fill="#eadcc2"/><rect x="28" y="186" width="160" height="24" fill="#c7ff4f"/></g>
+    <g transform="translate(800 540)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">Style Guide</text><rect x="28" y="94" width="48" height="48" fill="#11120f"/><rect x="90" y="94" width="48" height="48" fill="#c7ff4f"/><rect x="152" y="94" width="48" height="48" fill="#ff5b4a"/><rect x="214" y="94" width="48" height="48" fill="#1d46ff"/></g>
+    <g transform="translate(1150 540)"><rect width="310" height="220" fill="#fffaf0"/><text x="28" y="60" font-size="30" fill="#11120f">404</text><text x="28" y="145" font-size="76" fill="#ff5b4a">404</text></g>
+  </g>
+</svg>

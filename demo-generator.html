@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brief-to-Client-Pack Demo | ShortForm Agency OS</title>
+    <meta
+      name="description"
+      content="Try a local/static brief-to-client-pack demo for ShortForm Agency OS: generate hooks, scripts, storyboard, diagnosis, landing outline, revision logic, and renewal notes."
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" /></noscript>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="market-body">
+    <div class="market-glow market-glow-a"></div>
+    <div class="market-glow market-glow-b"></div>
+
+    <header class="market-header">
+      <a class="market-brand" href="./index.html"><span>SF</span><strong>Generator Demo</strong></a>
+      <nav class="market-nav">
+        <a href="./demo.html">Walkthrough</a>
+        <a href="./workspace.html">Full Workspace</a>
+        <a href="./cases.html">Cases</a>
+        <a href="./template.html">Product</a>
+      </nav>
+      <a class="market-pill" href="./workspace.html">Open full OS</a>
+    </header>
+
+    <main>
+      <section class="generator-hero">
+        <div>
+          <p class="market-breadcrumb">Interactive demo / local static mode</p>
+          <h1>Turn one rough client brief into a usable mini delivery pack.</h1>
+          <p>
+            This demo runs in the browser with deterministic local logic. It shows the product behavior before adding
+            API generation: structured outputs, revision logic, and renewal thinking instead of a blank chat response.
+          </p>
+          <div class="generator-proof-row" aria-label="Demo outputs">
+            <span>Campaign angle</span>
+            <span>Hook bank</span>
+            <span>30-second script</span>
+            <span>Storyboard</span>
+            <span>Renewal note</span>
+          </div>
+        </div>
+        <form class="generator-form" id="miniGeneratorForm">
+          <div class="generator-form-head">
+            <strong>Client brief</strong>
+            <button type="button" id="sampleBriefBtn">Load sample brief</button>
+          </div>
+          <label>Client name <input name="client" value="NovaClips AI" /></label>
+          <label>Niche <input name="niche" value="AI short drama studio" /></label>
+          <label>Target customer <input name="audience" value="solo founders testing AI video channels" /></label>
+          <label>Offer <input name="offer" value="weekly comment-to-episode production sprint" /></label>
+          <label>Main platform
+            <select name="platform">
+              <option value="TikTok">TikTok</option>
+              <option value="Instagram Reels">Instagram Reels</option>
+              <option value="YouTube Shorts">YouTube Shorts</option>
+              <option value="LinkedIn">LinkedIn</option>
+            </select>
+          </label>
+          <label>Creative tone
+            <select name="tone">
+              <option value="cinematic and direct">cinematic and direct</option>
+              <option value="authentic and casual">authentic and casual</option>
+              <option value="premium and polished">premium and polished</option>
+              <option value="sharp and professional">sharp and professional</option>
+            </select>
+          </label>
+          <label>Constraint
+            <select name="constraint">
+              <option value="unclear offer">unclear offer</option>
+              <option value="weak proof">weak proof</option>
+              <option value="low budget">low budget</option>
+              <option value="needs premium positioning">needs premium positioning</option>
+            </select>
+          </label>
+          <label>Desired output
+            <select name="desiredOutput">
+              <option value="client pitch pack">client pitch pack</option>
+              <option value="weekly content sprint">weekly content sprint</option>
+              <option value="UGC ad test">UGC ad test</option>
+              <option value="landing page starter">landing page starter</option>
+            </select>
+          </label>
+          <button class="market-primary" type="submit">Generate client pack</button>
+        </form>
+      </section>
+
+      <section class="generator-results" aria-live="polite">
+        <article class="generator-panel">
+          <span>1 / Strategy</span>
+          <div class="mini-generated-site" id="miniStrategy"></div>
+        </article>
+        <article class="generator-panel">
+          <span>2 / Creative pack</span>
+          <div class="mini-skill-os" id="miniCreative"></div>
+        </article>
+        <article class="generator-panel">
+          <span>3 / Client memo</span>
+          <div class="mini-report" id="miniMemo"></div>
+        </article>
+      </section>
+
+      <section class="generator-pack">
+        <div class="generator-pack-head">
+          <div>
+            <span>Generated mini pack</span>
+            <h2>Use this as a first client handoff, then continue in the full workspace.</h2>
+          </div>
+          <button class="market-primary" id="downloadPackBtn" type="button">Download Markdown pack</button>
+        </div>
+        <div class="generator-pack-grid" id="miniPack"></div>
+      </section>
+
+      <section class="market-final">
+        <span>Ready for the full version?</span>
+        <h2>The full workspace adds Brand Brain, saved projects, creative matrix, scripts, quote, calendar, and exports.</h2>
+        <a class="market-primary" href="./workspace.html">Open full workspace</a>
+      </section>
+    </main>
+
+    <script src="./demo-generator.js"></script>
+  </body>
+</html>

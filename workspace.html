@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ShortForm Agency OS Workspace</title>
+    <meta
+      name="description"
+      content="Use the Agency OS workspace to launch sites, diagnose clients, generate delivery packs, test creative, and build renewal reports."
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" /></noscript>
+    <link rel="stylesheet" href="./workspace.css" />
+  </head>
+  <body>
+    <header class="appbar">
+      <a class="brand" href="./index.html">
+        <span>SF</span>
+        <strong>Agency OS Workspace</strong>
+      </a>
+      <div class="app-actions">
+        <a class="icon-btn" href="./demo.html" title="Watch demo">
+          <span aria-hidden="true">DEMO</span>
+        </a>
+        <button class="icon-btn" id="newProjectBtn" type="button" title="New project">
+          <span aria-hidden="true">+</span>
+        </button>
+        <button class="icon-btn" id="sampleClientBtn" type="button" title="Load sample client">
+          <span aria-hidden="true">EX</span>
+        </button>
+        <button class="icon-btn" id="saveProjectBtn" type="button" title="Save project">
+          <span aria-hidden="true">S</span>
+        </button>
+        <button class="icon-btn" id="copyAllBtn" type="button" title="Copy all">
+          <span aria-hidden="true">C</span>
+        </button>
+        <button class="icon-btn" id="downloadBtn" type="button" title="Download Markdown">
+          <span aria-hidden="true">MD</span>
+        </button>
+        <button class="icon-btn" id="downloadWebsiteBtn" type="button" title="Download Website HTML">
+          <span aria-hidden="true">HTML</span>
+        </button>
+        <button class="icon-btn" id="downloadReportBtn" type="button" title="Download Renewal Report">
+          <span aria-hidden="true">RENEW</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="form-panel" aria-label="Client input">
+        <div class="panel-head">
+          <p class="kicker">Agency OS Workspace</p>
+          <h1>Launch, diagnose, deliver, test, and renew from one brief.</h1>
+          <p>Enter a client context once. The workspace creates a site preview, diagnosis, delivery pack, creative test matrix, approval workflow, and renewal logic.</p>
+          <div class="workspace-guide">
+            <button type="button" data-sample="nova">Load NovaClips AI</button>
+            <button type="button" data-sample="harbor">Load Harbor Coffee</button>
+            <button type="button" data-sample="glowbar">Load GlowBar Studio</button>
+          </div>
+        </div>
+
+        <section class="project-desk" aria-label="Project history">
+          <div class="desk-head">
+            <h2>Project files</h2>
+            <span id="projectCount">0 projects</span>
+          </div>
+          <div class="project-list" id="projectList"></div>
+        </section>
+
+        <form id="projectForm">
+          <input type="hidden" name="projectId" />
+          <label>
+            Client / brand name
+            <input name="clientName" value="Harbor Coffee" />
+          </label>
+
+          <label>
+            Niche / industry
+            <input name="industry" value="local coffee shop" />
+          </label>
+
+          <label>
+            Service type
+            <select name="serviceType">
+              <option value="Short-form management">Short-form management</option>
+              <option value="UGC ad production">UGC ad production</option>
+              <option value="Founder content">Founder content</option>
+              <option value="AI content repurposing">AI content repurposing</option>
+            </select>
+          </label>
+
+          <label>
+            Template to generate
+            <select name="templateType">
+              <option value="Client proposal pack">Client proposal pack</option>
+              <option value="Short-form campaign brief">Short-form campaign brief</option>
+              <option value="UGC creator brief">UGC creator brief</option>
+              <option value="Landing page copy pack">Landing page copy pack</option>
+              <option value="AI video workflow pack">AI video workflow pack</option>
+            </select>
+          </label>
+
+          <label>
+            Main platform
+            <select name="platform">
+              <option value="TikTok">TikTok</option>
+              <option value="Instagram Reels">Instagram Reels</option>
+              <option value="YouTube Shorts">YouTube Shorts</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Multi-platform">Multi-platform</option>
+            </select>
+          </label>
+
+          <label>
+            Target audience
+            <input name="audience" value="young professionals and students within 3 miles" />
+          </label>
+
+          <label>
+            Audience memory / known buying triggers
+            <textarea name="audienceMemory">Students respond to budget-friendly offers, locals save posts about seasonal drinks, and new customers need proof that the cafe is worth a stop.</textarea>
+          </label>
+
+          <label>
+            Content goal
+            <select name="goal">
+              <option value="generate inbound leads">generate inbound leads</option>
+              <option value="increase store visits">increase store visits</option>
+              <option value="build founder trust">build founder trust</option>
+              <option value="test a new offer">test a new offer</option>
+            </select>
+          </label>
+
+          <label>
+            Creative tone
+            <select name="tone">
+              <option value="authentic and casual">authentic and casual</option>
+              <option value="sharp and professional">sharp and professional</option>
+              <option value="story-driven">story-driven</option>
+              <option value="premium and polished">premium and polished</option>
+            </select>
+          </label>
+
+          <label>
+            Brand brain / voice rules
+            <textarea name="brandBrain">Proof-first, concrete, friendly, local, no exaggerated promises. Show real scenes before selling.</textarea>
+          </label>
+
+          <label>
+            Brand red lines / do-not-say rules
+            <textarea name="redLines">Do not promise viral results. Do not use fake scarcity. Do not copy competitor creators or copyrighted sounds.</textarea>
+          </label>
+
+          <label>
+            Competitors / references
+            <textarea name="competitors">Nearby cafes with strong Reels, student discount campaigns, creator-style drink reviews.</textarea>
+          </label>
+
+          <label>
+            Customer maturity
+            <select name="maturity">
+              <option value="Beginner">Beginner: needs clarity and simple execution</option>
+              <option value="Growing">Growing: has proof and wants repeatable growth</option>
+              <option value="Advanced">Advanced: wants testing, data, and optimization</option>
+            </select>
+          </label>
+
+          <label>
+            Priority constraint
+            <select name="priorityConstraint">
+              <option value="low time">low time</option>
+              <option value="low budget">low budget</option>
+              <option value="weak proof">weak proof</option>
+              <option value="unclear offer">unclear offer</option>
+              <option value="needs premium positioning">needs premium positioning</option>
+            </select>
+          </label>
+
+          <label>
+            Trend signal
+            <select name="trendSignal">
+              <option value="Reali-TEA">Reali-TEA: real-life, unfiltered, everyday proof</option>
+              <option value="Curiosity Detour">Curiosity Detour: search-led discovery and niche rabbit holes</option>
+              <option value="Emotional ROI">Emotional ROI: justify why to buy with meaning and proof</option>
+              <option value="Community Co-creation">Community Co-creation: comments, stitches, replies, and participation</option>
+              <option value="Trend Remix">Trend Remix: adapt a current hashtag, sound, or format</option>
+            </select>
+          </label>
+
+          <label>
+            Observed trend / hashtag / sound
+            <input name="trendInput" value="#graduation / summer reset / TikTok Shop Memorial Day" />
+          </label>
+
+          <label>
+            Budget range
+            <select name="budget">
+              <option value="$500-$1,500">$500-$1,500</option>
+              <option value="$1,500-$3,000">$1,500-$3,000</option>
+              <option value="$3,000+">$3,000+</option>
+              <option value="starter test">starter test</option>
+            </select>
+          </label>
+
+          <label>
+            Testing mode
+            <select name="testingMode">
+              <option value="Organic validation">Organic validation: post and learn before paid spend</option>
+              <option value="Paid creative test">Paid creative test: batch hooks and measure winners</option>
+              <option value="Retainer optimization">Retainer optimization: monthly learning loop</option>
+            </select>
+          </label>
+
+          <label>
+            Latest test result / learning
+            <textarea name="testResult">Variant A got the most saves; customers replied to local proof and student discount framing. Product-only hooks felt too promotional.</textarea>
+          </label>
+
+          <label>
+            Winning pattern so far
+            <input name="winningPattern" value="Comment reply plus local proof and a simple student-offer CTA" />
+          </label>
+
+          <label>
+            Approval owner
+            <select name="approvalOwner">
+              <option value="Founder">Founder</option>
+              <option value="Marketing lead">Marketing lead</option>
+              <option value="Agency account manager">Agency account manager</option>
+              <option value="Client team">Client team</option>
+            </select>
+          </label>
+
+          <label>
+            Approval state
+            <select name="approvalState">
+              <option value="Drafting">Drafting</option>
+              <option value="Needs internal review">Needs internal review</option>
+              <option value="Needs client approval">Needs client approval</option>
+              <option value="Approved to produce">Approved to produce</option>
+              <option value="Approved to publish">Approved to publish</option>
+              <option value="Blocked">Blocked</option>
+            </select>
+          </label>
+
+          <label>
+            Revision reason / blocker
+            <textarea name="revisionReason">Clarify the offer and keep the hook specific. Do not make the discount the only reason to watch.</textarea>
+          </label>
+
+          <label>
+            Project status
+            <select name="status">
+              <option value="New lead">New lead</option>
+              <option value="Proposal sent">Proposal sent</option>
+              <option value="Won">Won</option>
+              <option value="In delivery">In delivery</option>
+              <option value="Needs report">Needs report</option>
+              <option value="Renewal due">Renewal due</option>
+              <option value="Lost">Lost</option>
+            </select>
+          </label>
+
+          <label>
+            Feedback tag
+            <select name="feedback">
+              <option value="Untested">Untested</option>
+              <option value="Topics worked">Topics worked</option>
+              <option value="Quote accepted">Quote accepted</option>
+              <option value="Client requested edits">Client requested edits</option>
+              <option value="Client renewed">Client renewed</option>
+              <option value="Client churned">Client churned</option>
+            </select>
+          </label>
+
+          <label>
+            Skill depth
+            <select name="skillDepth">
+              <option value="Operator">Operator: fast client delivery</option>
+              <option value="Strategist">Strategist: positioning and offer decisions</option>
+              <option value="Advisor">Advisor: high-ticket diagnosis and retention</option>
+            </select>
+          </label>
+
+          <label>
+            Available assets
+            <textarea name="assets">Store photos, menu, product shots, founder can record 2 hours per week.</textarea>
+          </label>
+
+          <label>
+            Notes / constraints
+            <textarea name="notes">Avoid hard-selling. Make the content feel useful, local, and easy to act on.</textarea>
+          </label>
+
+          <button class="primary-btn" type="submit">
+            <span class="btn-icon" aria-hidden="true">*</span>
+            Generate website + pack
+          </button>
+        </form>
+      </aside>
+
+      <section class="output-panel" aria-label="Generated deliverables">
+        <div class="focus-strip">
+          <strong>Start here:</strong>
+          <span>Website is the launch layer. Skill OS turns the same brief into diagnosis, tests, approvals, and renewal logic.</span>
+          <button type="button" id="jumpWebsiteBtn">Show website</button>
+        </div>
+        <div class="output-toolbar">
+          <div>
+            <p class="kicker">Generated Output</p>
+            <h2>Client deliverables</h2>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Output sections">
+            <button class="tab active" type="button" data-target="website">Website</button>
+            <button class="tab premium-tab" type="button" data-target="advisor">Advisor</button>
+            <button class="tab premium-tab" type="button" data-target="skill">Skill OS</button>
+            <button class="tab premium-tab" type="button" data-target="profile">Profile</button>
+            <button class="tab premium-tab" type="button" data-target="clients">Clients</button>
+            <button class="tab premium-tab" type="button" data-target="memory">Memory</button>
+            <button class="tab premium-tab" type="button" data-target="packs">Packs</button>
+            <button class="tab" type="button" data-target="summary">Summary</button>
+            <button class="tab" type="button" data-target="template">Template</button>
+            <button class="tab" type="button" data-target="next">Next</button>
+            <button class="tab" type="button" data-target="trends">Trends</button>
+            <button class="tab" type="button" data-target="topics">Topics</button>
+            <button class="tab" type="button" data-target="calendar">Calendar</button>
+            <button class="tab" type="button" data-target="quote">Quote</button>
+            <button class="tab" type="button" data-target="script">Script</button>
+            <button class="tab" type="button" data-target="report">Report</button>
+          </div>
+        </div>
+
+        <article class="result-view active" id="website"></article>
+        <article class="result-view" id="advisor"></article>
+        <article class="result-view" id="skill"></article>
+        <article class="result-view" id="profile"></article>
+        <article class="result-view" id="clients"></article>
+        <article class="result-view" id="memory"></article>
+        <article class="result-view" id="packs"></article>
+        <article class="result-view" id="summary"></article>
+        <article class="result-view" id="template"></article>
+        <article class="result-view" id="next"></article>
+        <article class="result-view" id="trends"></article>
+        <article class="result-view" id="topics"></article>
+        <article class="result-view" id="calendar"></article>
+        <article class="result-view" id="quote"></article>
+        <article class="result-view" id="script"></article>
+        <article class="result-view" id="report"></article>
+      </section>
+    </main>
+
+    <div class="toast" id="toast">Copied</div>
+
+    <script src="./workspace.js"></script>
+  </body>
+</html>

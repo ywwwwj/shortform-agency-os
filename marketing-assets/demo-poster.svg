@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="ShortForm Agency OS demo poster">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#121212"/>
+      <stop offset="0.48" stop-color="#203c31"/>
+      <stop offset="1" stop-color="#f2aa4c"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff7c7" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#fff7c7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="900" rx="46" fill="url(#bg)"/>
+  <circle cx="1120" cy="150" r="260" fill="url(#orb)" opacity="0.55"/>
+  <circle cx="260" cy="760" r="300" fill="url(#orb)" opacity="0.32"/>
+  <rect x="116" y="116" width="1208" height="668" rx="34" fill="#fff7ea" opacity="0.94"/>
+  <rect x="154" y="154" width="1132" height="56" rx="18" fill="#191919"/>
+  <circle cx="188" cy="182" r="8" fill="#ff6b5f"/>
+  <circle cx="216" cy="182" r="8" fill="#ffd36a"/>
+  <circle cx="244" cy="182" r="8" fill="#5ee28f"/>
+  <text x="154" y="300" font-family="Space Grotesk, Arial, sans-serif" font-size="72" font-weight="700" fill="#171717">ShortForm Agency OS</text>
+  <text x="154" y="370" font-family="DM Sans, Arial, sans-serif" font-size="30" fill="#4b4439">Live demo: one brief to website, Skill OS, quote, script, and renewal report.</text>
+  <rect x="154" y="446" width="330" height="92" rx="24" fill="#18251f"/>
+  <text x="198" y="504" font-family="DM Sans, Arial, sans-serif" font-size="26" font-weight="700" fill="#fff7ea">Watch recording</text>
+  <rect x="540" y="446" width="590" height="92" rx="24" fill="#f2aa4c"/>
+  <text x="584" y="504" font-family="DM Sans, Arial, sans-serif" font-size="26" font-weight="700" fill="#171717">Generate a usable agency pack</text>
+  <path d="M690 612 L690 700 L770 656 Z" fill="#18251f"/>
+</svg>

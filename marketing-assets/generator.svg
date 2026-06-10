@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <rect width="1600" height="1000" fill="#171411"/>
+  <circle cx="1280" cy="170" r="260" fill="#ffd861" opacity="0.3"/>
+  <text x="100" y="135" font-family="Arial Black, Arial, sans-serif" font-size="76" fill="#fffdf8">Bonus copy generator</text>
+  <text x="104" y="195" font-family="Arial, sans-serif" font-size="30" fill="#cfc7ba">Generate headlines, briefs, scripts, pricing copy, reports, and trend adaptations.</text>
+  <g transform="translate(120 300)">
+    <rect width="560" height="520" fill="#fffaf1"/>
+    <text x="34" y="58" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#e34234">INPUT</text>
+    <rect x="34" y="90" width="480" height="42" fill="#efe5d2"/>
+    <rect x="34" y="154" width="480" height="42" fill="#efe5d2"/>
+    <rect x="34" y="218" width="480" height="42" fill="#efe5d2"/>
+    <rect x="34" y="282" width="480" height="110" fill="#efe5d2"/>
+    <rect x="34" y="430" width="260" height="52" fill="#ffd861" stroke="#171411"/>
+  </g>
+  <g transform="translate(760 300)">
+    <rect width="700" height="520" fill="#fffaf1"/>
+    <text x="34" y="58" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#e34234">OUTPUT</text>
+    <rect x="34" y="90" width="260" height="38" fill="#171411"/>
+    <rect x="34" y="152" width="610" height="28" fill="#efe5d2"/>
+    <rect x="34" y="200" width="610" height="28" fill="#efe5d2"/>
+    <rect x="34" y="248" width="610" height="28" fill="#efe5d2"/>
+    <rect x="34" y="320" width="180" height="90" fill="#ffd861"/>
+    <rect x="238" y="320" width="180" height="90" fill="#1f6f50"/>
+    <rect x="442" y="320" width="180" height="90" fill="#e34234"/>
+  </g>
+</svg>
