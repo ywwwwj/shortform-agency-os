@@ -779,6 +779,20 @@ Return:
 3. one creative test plan
 4. one approval checklist
 5. one renewal report outline`;
+  const trendScoutPrompt = `Act as a social trend scout for ${data.clientName}.
+
+Use fresh signals from TikTok Creative Center, YouTube Culture & Trends, Instagram/Reels observation, Reddit creator discussions, and client comments.
+
+Return a template update table with:
+1. Trend source
+2. Observed signal
+3. Format mechanic
+4. Audience fit for ${data.audience}
+5. Safe adaptation for ${data.industry}
+6. Brand risk or red line
+7. Which workspace field to update
+
+Do not copy a meme, sound, or creator directly. Extract the mechanic and rewrite it for the client.`;
 
   return `
     <div class="ai-desk-hero">
@@ -786,11 +800,21 @@ Return:
       <h3>Turn messy client work into a structured operating system.</h3>
       <p>This is the bridge from the old tool kit to the platform: paste client notes into AI, then store the structured result as profile, brief, approval logic, learning, and renewal material.</p>
     </div>
+    <div class="operator-path">
+      <article><span>Step 1</span><strong>Paste messy notes</strong><p>Use client emails, WhatsApp messages, briefs, call notes, trend links, or revision feedback.</p></article>
+      <article><span>Step 2</span><strong>Review why</strong><p>Each recommendation should show the reason, risk, and next operator action before you send anything to the client.</p></article>
+      <article><span>Step 3</span><strong>Export the pack</strong><p>Turn the structured workspace into AI handoff, approval summary, learning log, renewal report, and output assets.</p></article>
+    </div>
     <div class="ai-desk-grid">
       <article><span>1. Intake cleaner</span><strong>Messy notes -> client profile</strong><p>Use pasted emails, DMs, meeting notes, and briefs to extract audience, offer, proof, red lines, and approval owner.</p></article>
       <article><span>2. AI handoff</span><strong>Profile -> clean AI prompt</strong><p>Send a structured brief into ChatGPT, Claude, Runway, CapCut, or your internal model without losing client context.</p></article>
       <article><span>3. Delivery loop</span><strong>Output -> approval tracker</strong><p>Website, scripts, templates, and calendars remain here as the output layer, but approvals and blockers are recorded.</p></article>
       <article><span>4. Renewal loop</span><strong>Learning -> next sprint</strong><p>Every result becomes a learning log entry, approval diagnosis, and renewal-ready client report.</p></article>
+    </div>
+    <div class="explainability-grid">
+      <article><span>Recommended next action</span><strong>${approval.next}</strong><p>The platform picked this because the current approval signal is ${approval.severity.toLowerCase()} risk and the bottleneck looks like ${approval.type.toLowerCase()}.</p></article>
+      <article><span>Revision scope check</span><strong>${approval.type === "Offer clarity" ? "Scope may be unclear" : "Record before revising"}</strong><p>Classify the client request as a fix, minor edit, new version, reshoot, or scope change before doing extra work.</p></article>
+      <article><span>Template freshness</span><strong>Refresh weekly</strong><p>Update trend mechanics from social sources, then store only the reusable mechanic, client-safe adaptation, and risk note.</p></article>
     </div>
     <div class="advisor-score-row compact">
       <article><span>Client memory depth</span><strong>${profile.memoryDepth}%</strong><p>${profile.clientProjects.length} saved project(s), ${profile.learningEntries.length} learning cycle(s).</p></article>
@@ -814,9 +838,26 @@ Return:
         </ul>
       </article>
     </div>
+    <div class="ai-job-board">
+      <article>
+        <span>Trend refresh prompt</span>
+        <h4>Update data templates without rebuilding the app</h4>
+        <pre>${escapeHtml(trendScoutPrompt)}</pre>
+      </article>
+      <article>
+        <span>Source rhythm</span>
+        <h4>Where to refresh signals</h4>
+        <ul>
+          <li>TikTok Creative Center: hashtags, songs, creators, videos by region and industry.</li>
+          <li>YouTube Culture & Trends: broader creator and format shifts.</li>
+          <li>Reddit creator communities: revision, pricing, approval, and brief pain.</li>
+          <li>Client comments and DMs: questions that should become FAQ, hooks, or proof assets.</li>
+        </ul>
+      </article>
+    </div>
     <div class="analysis-card">
       <strong>Platform rule</strong>
-      <p>Do not compete with AI chat on raw generation. Use AI to structure client work, then use the workspace to remember, approve, learn, report, and renew.</p>
+      <p>Simple enough for daily client work. Explainable enough to trust. Fast enough to update when the market moves.</p>
     </div>
   `;
 }

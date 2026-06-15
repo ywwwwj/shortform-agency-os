@@ -451,7 +451,9 @@ textarea:focus-visible {
   color: rgba(255, 255, 255, 0.76);
 }
 
+.operator-path,
 .ai-desk-grid,
+.explainability-grid,
 .ai-job-board {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -459,19 +461,39 @@ textarea:focus-visible {
   margin: 14px 0;
 }
 
+.operator-path {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.explainability-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.operator-path article,
 .ai-desk-grid article,
+.explainability-grid article,
 .ai-job-board article {
   border: 1px solid var(--line);
   padding: 18px;
   background: #fffdf8;
 }
 
+.operator-path article {
+  background:
+    linear-gradient(180deg, rgba(255, 216, 97, 0.3), rgba(255, 250, 241, 0.92)),
+    #fffdf8;
+}
+
 .ai-desk-grid span,
+.operator-path span,
+.explainability-grid span,
 .ai-job-board span {
   color: var(--red);
 }
 
-.ai-desk-grid strong {
+.ai-desk-grid strong,
+.operator-path strong,
+.explainability-grid strong {
   display: block;
   margin: 8px 0;
   font-family: "Space Grotesk", sans-serif;
@@ -1577,7 +1599,9 @@ th {
 
   .memory-strip,
   .memory-grid,
+  .operator-path,
   .ai-desk-grid,
+  .explainability-grid,
   .ai-job-board,
   .client-score-row,
   .client-grid,
@@ -1636,7 +1660,9 @@ th {
   }
 
   .advisor-grid,
+  .operator-path,
   .ai-desk-grid,
+  .explainability-grid,
   .ai-job-board,
   .generated-grid,
   .generated-dark,
