@@ -6,7 +6,7 @@
     <title>ShortForm Agency OS Workspace</title>
     <meta
       name="description"
-      content="Use the Agency OS workspace to launch sites, diagnose clients, generate delivery packs, test creative, and build renewal reports."
+      content="Use the Agency OS platform workspace to organize client notes, build profiles, hand off to AI, manage approvals, log learning, and export renewal reports."
     />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap"
@@ -54,9 +54,9 @@
     <main class="workspace">
       <aside class="form-panel" aria-label="Client input">
         <div class="panel-head">
-          <p class="kicker">Agency OS Workspace</p>
-          <h1>Launch, diagnose, deliver, test, and renew from one brief.</h1>
-          <p>Enter a client context once. The workspace creates a site preview, diagnosis, delivery pack, creative test matrix, approval workflow, and renewal logic.</p>
+          <p class="kicker">AI-assisted client workspace</p>
+          <h1>Run the whole client sprint from one operating desk.</h1>
+          <p>Paste messy context into the AI Desk, structure it into client memory, then generate the output layer: briefs, sites, scripts, approval notes, learning logs, and renewal reports.</p>
           <div class="workspace-guide">
             <button type="button" data-sample="nova">Load NovaClips AI</button>
             <button type="button" data-sample="harbor">Load Harbor Coffee</button>
@@ -299,7 +299,7 @@
 
           <button class="primary-btn" type="submit">
             <span class="btn-icon" aria-hidden="true">*</span>
-            Generate website + pack
+            Build workspace + output pack
           </button>
         </form>
       </aside>
@@ -307,22 +307,23 @@
       <section class="output-panel" aria-label="Generated deliverables">
         <div class="focus-strip">
           <strong>Start here:</strong>
-          <span>Website is the launch layer. Skill OS turns the same brief into diagnosis, tests, approvals, and renewal logic.</span>
+          <span>AI Desk is the platform entry. Website, scripts, templates, and reports are now the output layer inside the client workspace.</span>
           <button type="button" id="jumpWebsiteBtn">Show website</button>
         </div>
         <div class="output-toolbar">
           <div>
-            <p class="kicker">Generated Output</p>
-            <h2>Client deliverables</h2>
+            <p class="kicker">Platform workspace</p>
+            <h2>Client sprint desk</h2>
           </div>
           <div class="tabs" role="tablist" aria-label="Output sections">
-            <button class="tab active" type="button" data-target="website">Website</button>
+            <button class="tab active premium-tab" type="button" data-target="aidesk">AI Desk</button>
             <button class="tab premium-tab" type="button" data-target="advisor">Advisor</button>
             <button class="tab premium-tab" type="button" data-target="skill">Skill OS</button>
             <button class="tab premium-tab" type="button" data-target="profile">Profile</button>
             <button class="tab premium-tab" type="button" data-target="clients">Clients</button>
             <button class="tab premium-tab" type="button" data-target="memory">Memory</button>
             <button class="tab premium-tab" type="button" data-target="packs">Packs</button>
+            <button class="tab" type="button" data-target="website">Website</button>
             <button class="tab" type="button" data-target="summary">Summary</button>
             <button class="tab" type="button" data-target="template">Template</button>
             <button class="tab" type="button" data-target="next">Next</button>
@@ -335,7 +336,8 @@
           </div>
         </div>
 
-        <article class="result-view active" id="website"></article>
+        <article class="result-view active" id="aidesk"></article>
+        <article class="result-view" id="website"></article>
         <article class="result-view" id="advisor"></article>
         <article class="result-view" id="skill"></article>
         <article class="result-view" id="profile"></article>

@@ -746,9 +746,79 @@ function loadSampleClient(sampleKey = "nova") {
   form.reset();
   setFormData({ ...sample, projectId: "" });
   generate();
-  activateTab("website");
+  activateTab("aidesk");
   renderProjectList();
   showToast(`${sample.clientName} sample loaded`);
+}
+
+function renderAIDesk(data) {
+  const approval = analyzeApprovalBottleneck(data);
+  const learning = analyzeLearningLog(data);
+  const profile = buildClientProfile(data);
+  const aiHandoffPrompt = `You are helping prepare a client sprint for ${data.clientName}, a ${data.industry}.
+
+Client memory:
+- Audience: ${data.audience}
+- Buying triggers: ${data.audienceMemory || "No audience memory saved yet."}
+- Brand voice: ${data.brandBrain || "No brand rules saved yet."}
+- Red lines: ${data.redLines || "No red lines saved yet."}
+- Proof assets: ${data.assets || "No proof assets saved yet."}
+
+Current sprint:
+- Goal: ${data.goal}
+- Platform: ${data.platform}
+- Testing mode: ${data.testingMode}
+- Latest learning: ${data.testResult || "No learning logged yet."}
+- Winning pattern: ${data.winningPattern || "No winner logged yet."}
+- Approval state: ${data.approvalOwner || "Founder"} / ${data.approvalState || "Drafting"}
+- Revision blocker: ${data.revisionReason || "No blocker logged yet."}
+
+Return:
+1. a clean client profile
+2. one AI handoff brief
+3. one creative test plan
+4. one approval checklist
+5. one renewal report outline`;
+
+  return `
+    <div class="ai-desk-hero">
+      <span>AI Desk / platform entry</span>
+      <h3>Turn messy client work into a structured operating system.</h3>
+      <p>This is the bridge from the old tool kit to the platform: paste client notes into AI, then store the structured result as profile, brief, approval logic, learning, and renewal material.</p>
+    </div>
+    <div class="ai-desk-grid">
+      <article><span>1. Intake cleaner</span><strong>Messy notes -> client profile</strong><p>Use pasted emails, DMs, meeting notes, and briefs to extract audience, offer, proof, red lines, and approval owner.</p></article>
+      <article><span>2. AI handoff</span><strong>Profile -> clean AI prompt</strong><p>Send a structured brief into ChatGPT, Claude, Runway, CapCut, or your internal model without losing client context.</p></article>
+      <article><span>3. Delivery loop</span><strong>Output -> approval tracker</strong><p>Website, scripts, templates, and calendars remain here as the output layer, but approvals and blockers are recorded.</p></article>
+      <article><span>4. Renewal loop</span><strong>Learning -> next sprint</strong><p>Every result becomes a learning log entry, approval diagnosis, and renewal-ready client report.</p></article>
+    </div>
+    <div class="advisor-score-row compact">
+      <article><span>Client memory depth</span><strong>${profile.memoryDepth}%</strong><p>${profile.clientProjects.length} saved project(s), ${profile.learningEntries.length} learning cycle(s).</p></article>
+      <article><span>Approval risk</span><strong>${approval.severity}</strong><p>${approval.type}: ${approval.next}</p></article>
+      <article><span>Next AI job</span><strong>${learning.latest ? "Summarize sprint" : "Clean intake"}</strong><p>${learning.nextExperiment}</p></article>
+    </div>
+    <div class="ai-job-board">
+      <article>
+        <span>BYO-AI mode now</span>
+        <h4>Copy this platform prompt into your AI tool</h4>
+        <pre>${escapeHtml(aiHandoffPrompt)}</pre>
+      </article>
+      <article>
+        <span>Future API mode</span>
+        <h4>What the platform should automate later</h4>
+        <ul>
+          <li>Classify pasted client notes into profile fields.</li>
+          <li>Extract learning and revision reasons after each sprint.</li>
+          <li>Detect repeated approval bottlenecks across clients.</li>
+          <li>Draft renewal reports and next-sprint plans automatically.</li>
+        </ul>
+      </article>
+    </div>
+    <div class="analysis-card">
+      <strong>Platform rule</strong>
+      <p>Do not compete with AI chat on raw generation. Use AI to structure client work, then use the workspace to remember, approve, learn, report, and renew.</p>
+    </div>
+  `;
 }
 
 function renderSummary(data) {
@@ -2438,6 +2508,7 @@ function htmlToMarkdown(title, html) {
 function generate() {
   const data = getData();
   const sections = {
+    aidesk: renderAIDesk(data),
     advisor: renderAdvisor(data),
     summary: renderSummary(data),
     website: renderWebsitePreview(data),
@@ -2465,6 +2536,7 @@ function generate() {
 
   latestMarkdown = [
     `# ${data.clientName} ShortForm Project Pack`,
+    htmlToMarkdown("AI Desk", sections.aidesk),
     htmlToMarkdown("Advisor Quality Gate", sections.advisor),
     htmlToMarkdown("Project Summary", sections.summary),
     htmlToMarkdown("Skill OS", sections.skill),
@@ -2491,8 +2563,8 @@ function generate() {
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   generate();
-  activateTab("website");
-  showToast("Website preview generated");
+  activateTab("aidesk");
+  showToast("Workspace pack generated");
 });
 
 tabs.forEach((tab) => {
