@@ -1665,6 +1665,113 @@ textarea:focus-visible {
     var(--ink);
 }
 
+.dashboard-preview {
+  align-content: start;
+  gap: 16px;
+  color: #fff;
+}
+
+.dashboard-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-head span,
+.meeting-notes-card span,
+.stats-grid span {
+  display: block;
+  color: var(--yellow);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dashboard-head strong,
+.meeting-notes-card strong,
+.stats-grid strong {
+  display: block;
+  margin-top: 8px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.dashboard-head small {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.stats-grid article,
+.meeting-notes-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.stats-grid article {
+  padding: 14px;
+}
+
+.stats-grid p,
+.meeting-notes-card p,
+.meeting-notes-card li {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.55;
+}
+
+.meeting-notes-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.meeting-notes-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-stack span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: -8px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 11px;
+}
+
+.meeting-notes-card ol {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.meeting-notes-card li {
+  margin-bottom: 8px;
+}
+
 .orb {
   position: absolute;
   width: 180px;
@@ -1826,6 +1933,44 @@ textarea:focus-visible {
   font-size: 13px;
   font-weight: 900;
   background: rgba(255, 255, 255, 0.06);
+}
+
+.onboarding-section {
+  border-top: 1px solid var(--line);
+}
+
+.onboarding-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.onboarding-grid article {
+  border: 1px solid var(--line);
+  padding: 18px;
+  background: var(--cream);
+  box-shadow: var(--shadow);
+}
+
+.onboarding-grid span {
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.onboarding-grid strong {
+  display: block;
+  margin: 8px 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 24px;
+  line-height: 1.05;
+}
+
+.onboarding-grid p {
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 .decision-strip {
@@ -3494,6 +3639,11 @@ textarea:focus-visible {
     min-height: 520px;
   }
 
+  .stats-grid,
+  .onboarding-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .nav {
     display: none;
   }
@@ -3567,6 +3717,16 @@ textarea:focus-visible {
 
   .hero-proof,
   .quick-path {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-head,
+  .meeting-notes-head {
+    flex-direction: column;
+  }
+
+  .stats-grid,
+  .onboarding-grid {
     grid-template-columns: 1fr;
   }
 
