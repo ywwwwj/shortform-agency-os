@@ -12,6 +12,15 @@ const jumpWebsiteBtn = document.querySelector("#jumpWebsiteBtn");
 const projectList = document.querySelector("#projectList");
 const projectCount = document.querySelector("#projectCount");
 const toast = document.querySelector("#toast");
+const briefDrawer = document.querySelector("#briefDrawer");
+const drawerBackdrop = document.querySelector("#drawerBackdrop");
+const openBriefBtn = document.querySelector("#openBriefBtn");
+const closeBriefBtn = document.querySelector("#closeBriefBtn");
+const helpDialog = document.querySelector("#helpDialog");
+const openHelpBtn = document.querySelector("#openHelpBtn");
+const closeHelpBtn = document.querySelector("#closeHelpBtn");
+const helpOpenBriefBtn = document.querySelector("#helpOpenBriefBtn");
+const activeViewTitle = document.querySelector("#activeViewTitle");
 
 const storageKey = "shortform-studio-projects-v2";
 let projects = loadProjects();
@@ -889,12 +898,35 @@ function showToast(message) {
 function activateTab(targetId) {
   tabs.forEach((item) => item.classList.toggle("active", item.dataset.target === targetId));
   views.forEach((view) => view.classList.toggle("active", view.id === targetId));
+  const activeTab = [...tabs].find((item) => item.dataset.target === targetId);
+  if (activeTab && activeViewTitle) activeViewTitle.textContent = activeTab.textContent.trim();
+}
+
+function openBriefDrawer() {
+  briefDrawer.classList.add("open");
+  briefDrawer.setAttribute("aria-hidden", "false");
+  drawerBackdrop.hidden = false;
+  document.body.classList.add("drawer-open");
+  window.setTimeout(() => briefDrawer.querySelector("input, select, textarea")?.focus(), 120);
+}
+
+function closeBriefDrawer() {
+  briefDrawer.classList.remove("open");
+  briefDrawer.setAttribute("aria-hidden", "true");
+  drawerBackdrop.hidden = true;
+  document.body.classList.remove("drawer-open");
+  openBriefBtn.focus();
 }
 
 function activateHashTab() {
   const targetId = window.location.hash.replace("#", "");
   if (targetId && document.querySelector(`#${targetId}`)) {
+    history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     activateTab(targetId);
+    window.requestAnimationFrame(() => {
+      history.replaceState(null, "", `#${targetId}`);
+      window.scrollTo(0, 0);
+    });
   }
 }
 
@@ -3008,6 +3040,7 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   generate();
   activateTab("aidesk");
+  closeBriefDrawer();
   showToast("Workspace pack generated");
 });
 
@@ -3015,7 +3048,24 @@ tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     activateTab(tab.dataset.target);
     history.replaceState(null, "", `#${tab.dataset.target}`);
+    document.querySelector(".output-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
+});
+
+openBriefBtn.addEventListener("click", openBriefDrawer);
+closeBriefBtn.addEventListener("click", closeBriefDrawer);
+drawerBackdrop.addEventListener("click", closeBriefDrawer);
+openHelpBtn.addEventListener("click", () => helpDialog.showModal());
+closeHelpBtn.addEventListener("click", () => helpDialog.close());
+helpOpenBriefBtn.addEventListener("click", () => {
+  helpDialog.close();
+  openBriefDrawer();
+});
+helpDialog.addEventListener("click", (event) => {
+  if (event.target === helpDialog) helpDialog.close();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && briefDrawer.classList.contains("open")) closeBriefDrawer();
 });
 
 jumpWebsiteBtn.addEventListener("click", () => {
@@ -3024,8 +3074,14 @@ jumpWebsiteBtn.addEventListener("click", () => {
 });
 
 saveProjectBtn.addEventListener("click", saveProject);
-newProjectBtn.addEventListener("click", newProject);
-sampleClientBtn.addEventListener("click", () => loadSampleClient("nova"));
+newProjectBtn.addEventListener("click", () => {
+  newProject();
+  openBriefDrawer();
+});
+sampleClientBtn.addEventListener("click", () => {
+  loadSampleClient("nova");
+  openBriefDrawer();
+});
 
 document.addEventListener("click", (event) => {
   const sampleKey = event.target.closest("[data-sample]")?.dataset.sample;
