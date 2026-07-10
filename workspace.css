@@ -454,6 +454,7 @@ textarea:focus-visible {
 .operator-path,
 .ai-desk-grid,
 .explainability-grid,
+.decision-explain-panel,
 .ai-job-board {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -469,9 +470,14 @@ textarea:focus-visible {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.decision-explain-panel {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .operator-path article,
 .ai-desk-grid article,
 .explainability-grid article,
+.decision-explain-panel article,
 .ai-job-board article {
   border: 1px solid var(--line);
   padding: 18px;
@@ -487,18 +493,25 @@ textarea:focus-visible {
 .ai-desk-grid span,
 .operator-path span,
 .explainability-grid span,
+.decision-explain-panel span,
 .ai-job-board span {
   color: var(--red);
 }
 
 .ai-desk-grid strong,
 .operator-path strong,
-.explainability-grid strong {
+.explainability-grid strong,
+.decision-explain-panel strong {
   display: block;
   margin: 8px 0;
   font-family: "Space Grotesk", sans-serif;
   font-size: 24px;
   line-height: 1.1;
+}
+
+.decision-explain-panel p {
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .ai-job-board pre {

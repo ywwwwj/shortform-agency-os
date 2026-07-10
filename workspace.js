@@ -62,6 +62,114 @@ const nextActions = {
   Lost: ["Record the objection", "Adjust pricing or scope", "Add the lead to a future follow-up list"],
 };
 
+const actionExplainRules = {
+  "Send intake questions": {
+    why: "The file is still a lead, so the fastest win is turning uncertainty into usable client memory.",
+    risk: "prevents weak briefs, generic scripts, and avoidable revision loops",
+    next: "Ask for audience, offer, proof assets, red lines, approval owner, and one success metric.",
+  },
+  "Confirm budget range": {
+    why: "Budget determines whether this should be a diagnosis sprint, organic test, paid creative test, or retainer.",
+    risk: "prevents over-scoping before the client has approved a realistic delivery level",
+    next: "Offer two ranges with clear deliverables and explain what is excluded from each.",
+  },
+  "Offer a low-risk starter package": {
+    why: "A starter sprint lets the client see the approval and learning loop before committing to volume.",
+    risk: "reduces buyer hesitation and protects operator time",
+    next: "Package one brief, one hook set, one script batch, and one renewal readout.",
+  },
+  "Follow up within 24 hours": {
+    why: "Proposal-stage deals often stall because the next decision is not named.",
+    risk: "reduces ghosting and vague approval delays",
+    next: "Ask what would block approval and offer to simplify scope if needed.",
+  },
+  "Add one smaller pilot option": {
+    why: "A smaller option keeps the conversation alive when budget or confidence is uncertain.",
+    risk: "reduces lost deals caused by all-or-nothing retainer asks",
+    next: "Turn the main package into a one-week proof sprint with one measurable learning goal.",
+  },
+  "Ask what would block approval": {
+    why: "The system needs the real objection before it can recommend the next handoff.",
+    risk: "prevents blind revisions and unpriced extra work",
+    next: "Ask whether the blocker is budget, proof, scope, brand risk, timing, or internal review.",
+  },
+  "Confirm deposit and timeline": {
+    why: "Won projects need operational clarity before creative work begins.",
+    risk: "reduces unpaid production and timeline drift",
+    next: "Confirm payment, first asset deadline, approval owner, and revision window.",
+  },
+  "Collect brand assets": {
+    why: "Short-form and UGC output quality depends on proof, scenes, and brand-safe examples.",
+    risk: "reduces generic outputs and rights-risky references",
+    next: "Collect photos, clips, testimonials, product notes, creator references, and red lines.",
+  },
+  "Generate the first weekly calendar": {
+    why: "A calendar turns the approved strategy into visible delivery.",
+    risk: "reduces client anxiety and scattered production",
+    next: "Build five posts around one trend mechanic, one proof asset, and one CTA.",
+  },
+  "Send progress update": {
+    why: "In-delivery clients need proof that work is moving before they approve more.",
+    risk: "reduces surprise revisions and status-check interruptions",
+    next: "Send what is done, what is waiting on approval, and the next decision needed.",
+  },
+  "Record edit notes": {
+    why: "Revision notes become margin defense and next-sprint learning.",
+    risk: "reduces repeated subjective edits and unpaid scope changes",
+    next: "Classify each request as fix, minor edit, new version, reshoot, or scope change.",
+  },
+  "Prepare a weekly report": {
+    why: "The report connects outputs to learning while the sprint is still fresh.",
+    risk: "reduces renewal conversations that rely only on content volume",
+    next: "Log winner, loser, approval blocker, and one next experiment.",
+  },
+  "Summarize best performers": {
+    why: "The client needs a simple read on what worked before approving the next cycle.",
+    risk: "reduces random ideation and disconnected trend chasing",
+    next: "Compare saves, replies, comments, qualified leads, and client feedback.",
+  },
+  "Identify next week's test": {
+    why: "A renewal-ready workflow should always name the next controlled experiment.",
+    risk: "reduces vague monthly retainers and unfocused content volume",
+    next: "Keep the winning proof mechanism and change one variable: hook, CTA, format, or platform.",
+  },
+  "Prepare renewal angle": {
+    why: "Renewal is easier when framed as the next learning cycle, not more posts.",
+    risk: "reduces churn caused by unclear business value",
+    next: "Write the next sprint promise, evidence from this cycle, and the approval guardrail.",
+  },
+  "Send performance summary": {
+    why: "Renewal-due clients need proof, not a generic check-in.",
+    risk: "reduces price objections and unclear value perception",
+    next: "Lead with the strongest result, the biggest learning, and the next experiment.",
+  },
+  "Pitch the next month plan": {
+    why: "A concrete plan turns saved learning into a reason to continue.",
+    risk: "reduces renewal friction and one-off project churn",
+    next: "Show what stays, what changes, and why the next month should improve.",
+  },
+  "Offer an upgrade path": {
+    why: "A stronger scope is justified only when the learning log shows compounding value.",
+    risk: "reduces premature upsells and protects trust",
+    next: "Tie the upgrade to reporting, creator sourcing, paid testing, or faster approval ops.",
+  },
+  "Record the objection": {
+    why: "Lost deals still teach positioning, pricing, and proof gaps.",
+    risk: "reduces repeated sales mistakes",
+    next: "Save the exact objection and tag it as budget, proof, scope, timing, trust, or fit.",
+  },
+  "Adjust pricing or scope": {
+    why: "A loss can mean the package was too broad, too expensive, or poorly explained.",
+    risk: "reduces future mismatch between promise and buyer readiness",
+    next: "Create a smaller pilot or a clearer setup service before the next outreach batch.",
+  },
+  "Add the lead to a future follow-up list": {
+    why: "Some leads need timing and proof, not more persuasion today.",
+    risk: "reduces pushy follow-up and preserves the relationship",
+    next: "Follow up with a relevant case note, template update, or proof asset in 2-4 weeks.",
+  },
+};
+
 const skillDepthMap = {
   Operator: {
     promise: "fast delivery with clear weekly outputs",
@@ -730,6 +838,8 @@ function newProject() {
   form.elements.audienceMemory.value = "List the recurring customer triggers, objections, and proof expectations here.";
   form.elements.trendSignal.value = "Trend Remix";
   form.elements.trendInput.value = "graduation / summer reset / TikTok Shop Memorial Day";
+  form.elements.trendSource.value = "TikTok Creative Center check + client comments. Save source, date, and fit before using the mechanic.";
+  form.elements.rightsCheck.value = "Use owned footage, licensed sounds, or platform-safe commercial assets. Record the AI/video tool and approval owner.";
   form.elements.winningPattern.value = "No winner logged yet";
   form.elements.approvalOwner.value = "Founder";
   form.elements.approvalState.value = "Drafting";
@@ -767,6 +877,8 @@ Client memory:
 Current sprint:
 - Goal: ${data.goal}
 - Platform: ${data.platform}
+- Trend evidence: ${data.trendSource || "No trend source logged yet."}
+- Rights check: ${data.rightsCheck || "No asset rights check logged yet."}
 - Testing mode: ${data.testingMode}
 - Latest learning: ${data.testResult || "No learning logged yet."}
 - Winning pattern: ${data.winningPattern || "No winner logged yet."}
@@ -782,6 +894,8 @@ Return:
   const trendScoutPrompt = `Act as a social trend scout for ${data.clientName}.
 
 Use fresh signals from TikTok Creative Center, YouTube Culture & Trends, Instagram/Reels observation, Reddit creator discussions, and client comments.
+Current source note: ${data.trendSource || "No source note logged yet."}
+Current rights note: ${data.rightsCheck || "No rights note logged yet."}
 
 Return a template update table with:
 1. Trend source
@@ -838,6 +952,23 @@ Do not copy a meme, sound, or creator directly. Extract the mechanic and rewrite
         </ul>
       </article>
     </div>
+    <div class="decision-explain-panel">
+      <article>
+        <span>Recommendation</span>
+        <strong>${approval.next}</strong>
+        <p>${approval.why}</p>
+      </article>
+      <article>
+        <span>Risk reduced</span>
+        <strong>${approval.severity} approval risk</strong>
+        <p>This keeps production from moving ahead while ${approval.type.toLowerCase()} is still unresolved.</p>
+      </article>
+      <article>
+        <span>Next action</span>
+        <strong>Send a tighter handoff</strong>
+        <p>${approval.nextFasterMove}</p>
+      </article>
+    </div>
     <div class="ai-job-board">
       <article>
         <span>Trend refresh prompt</span>
@@ -855,6 +986,26 @@ Do not copy a meme, sound, or creator directly. Extract the mechanic and rewrite
         </ul>
       </article>
     </div>
+    <h4>Weekly source -> signal -> mechanic -> client-fit -> risk -> field update</h4>
+    <table>
+      <thead><tr><th>Source</th><th>Signal</th><th>Mechanic</th><th>Client fit</th><th>Risk</th><th>Field update</th></tr></thead>
+      <tbody>
+        ${getWeeklyTrendRefreshRows(data)
+          .map(
+            (row) => `
+              <tr>
+                <td>${row.source}</td>
+                <td>${row.signal}</td>
+                <td>${row.mechanic}</td>
+                <td>${row.fit}</td>
+                <td>${row.risk}</td>
+                <td>${row.update}</td>
+              </tr>
+            `
+          )
+          .join("")}
+      </tbody>
+    </table>
     <div class="analysis-card">
       <strong>Platform rule</strong>
       <p>Simple enough for daily client work. Explainable enough to trust. Fast enough to update when the market moves.</p>
@@ -1106,6 +1257,65 @@ function analyzeLearningLog(data = getData()) {
         ? `Build the next experiment around "${profile.winningPatterns[0]}" and change only one variable: hook, proof, CTA, or platform.`
         : "Run a baseline test and record the first winning pattern before generating more variants.",
   };
+}
+
+function explainAction(action, data) {
+  const fallback = {
+    why: `This follows the current status "${data.status}" and feedback "${data.feedback}".`,
+    risk: "reduces stalled delivery and unclear client handoff",
+    next: "Write the decision, proof needed, owner, and deadline before moving to production.",
+  };
+  return actionExplainRules[action] || fallback;
+}
+
+function getWeeklyTrendRefreshRows(data) {
+  const trendInput = getTrendInput(data);
+  const playbook = getTrendPlaybook(data);
+  const approval = analyzeApprovalBottleneck(data);
+  const trendSource = data.trendSource || "No source note logged yet. Add platform, date, and observed source before delivery.";
+  const rightsCheck = data.rightsCheck || "No rights note logged yet. Confirm owned footage, licensed sound, creator usage, and AI-video disclosure needs.";
+  return [
+    {
+      source: "TikTok Creative Center",
+      signal: `${trendInput} / ${trendSource}`,
+      mechanic: "Convert a live hashtag, sound, creator format, or comment pattern into a repeatable hook/proof structure.",
+      fit: `Use only if it supports ${data.audience} and the ${data.goal} goal.`,
+      risk: playbook.risk,
+      update: "trendInput, trendSignal, trendSource, topic hooks, script opener",
+    },
+    {
+      source: "AI video tool release notes / asset library",
+      signal: rightsCheck,
+      mechanic: "Log the AI tool, source assets, prompt origin, and commercial-use status before recommending production.",
+      fit: `Best when ${data.templateType || "the client pack"} includes AI video, UGC ads, or synthetic B-roll.`,
+      risk: "Do not send AI-generated footage or copied creator assets without a documented rights and approval check.",
+      update: "rightsCheck, redLines, assets, approval owner",
+    },
+    {
+      source: "YouTube Culture & Trends",
+      signal: "Broader creator, fandom, remix, and format behavior",
+      mechanic: "Translate the larger culture pattern into a slower, more durable content series.",
+      fit: `Best when ${data.clientName} needs explainability beyond one fast trend.`,
+      risk: "Do not overfit a broad culture report into a weak client niche.",
+      update: "content pillars, calendar series, renewal report context",
+    },
+    {
+      source: "Reddit / creator communities",
+      signal: "Approval delays, revision scope confusion, pricing pressure, and hidden labor",
+      mechanic: "Turn pain language into approval checklist fields and revision boundaries.",
+      fit: `Relevant because current bottleneck reads as ${approval.type}.`,
+      risk: "Do not treat anonymous anecdotes as proof. Use them to improve workflow questions.",
+      update: "approvalState, revisionReason, redLines, delivery pack notes",
+    },
+    {
+      source: "Client comments, DMs, and review notes",
+      signal: data.testResult || "No client-side signal logged yet.",
+      mechanic: "Promote repeated questions into FAQ, proof clips, and next-sprint tests.",
+      fit: `Best source for client-specific freshness because it comes from ${data.clientName}'s real audience.`,
+      risk: "Do not generalize one comment into the whole strategy without a follow-up test.",
+      update: "audienceMemory, winningPattern, FAQ pack, renewal decision",
+    },
+  ];
 }
 
 function buildClientLibrary() {
@@ -1835,6 +2045,7 @@ function renderAdvisor(data) {
   const fit = getTemplateFit(data);
   const preset = getIndustryPreset(data);
   const generic = getGenericOutputCheck(data);
+  const approval = analyzeApprovalBottleneck(data);
 
   return `
     <div class="advisor-hero">
@@ -1847,6 +2058,24 @@ function renderAdvisor(data) {
       <article><span>Brief Quality</span><strong>${brief.score}%</strong><p>${brief.status}</p></article>
       <article><span>Template Fit</span><strong>${fit.primary.name}</strong><p>${fit.confidence}% confidence</p></article>
       <article><span>Industry Preset</span><strong>${preset.name}</strong><p>${preset.sprint} sprint range</p></article>
+    </div>
+
+    <div class="decision-explain-panel">
+      <article>
+        <span>Recommendation</span>
+        <strong>Use ${fit.primary.name}</strong>
+        <p>${fit.primary.reason}</p>
+      </article>
+      <article>
+        <span>Risk reduced</span>
+        <strong>${generic.verdict}</strong>
+        <p>The gate blocks generic outputs, weak proof, missing red lines, and unresolved approval issues before export.</p>
+      </article>
+      <article>
+        <span>Next action</span>
+        <strong>${approval.next}</strong>
+        <p>${approval.why}</p>
+      </article>
     </div>
 
     <div class="grid-two">
@@ -2215,19 +2444,29 @@ function buildStandaloneWebsite(data) {
 
 function renderNext(data) {
   const actions = nextActions[data.status] || nextActions["New lead"];
+  const approval = analyzeApprovalBottleneck(data);
+  const learning = analyzeLearningLog(data);
   return `
     <h3>Recommended next steps</h3>
     <div class="action-list">
       ${actions
-        .map(
-          (action, index) => `
+        .map((action, index) => {
+          const explanation = explainAction(action, data);
+          return `
             <article>
               <h4>${index + 1}. ${action}</h4>
-              <p>Based on status "${data.status}" and feedback "${data.feedback}", prioritize this action so the project keeps moving.</p>
+              <p><strong>Why:</strong> ${explanation.why}</p>
+              <p><strong>Risk reduced:</strong> ${explanation.risk}.</p>
+              <p><strong>Next operator action:</strong> ${explanation.next}</p>
             </article>
-          `
-        )
+          `;
+        })
         .join("")}
+    </div>
+    <div class="decision-explain-panel">
+      <article><span>Approval read</span><strong>${approval.type}</strong><p>${approval.why}</p></article>
+      <article><span>Learning read</span><strong>${learning.latest ? "Use saved learning" : "Create first learning snapshot"}</strong><p>${learning.nextExperiment}</p></article>
+      <article><span>Renewal link</span><strong>${getRenewalSignal(data)}</strong><p>${getRenewalDecision(data)}</p></article>
     </div>
     <h4>Follow-up script</h4>
     <div class="result-card">
@@ -2239,6 +2478,7 @@ function renderNext(data) {
 function renderTrends(data) {
   const playbook = getTrendPlaybook(data);
   const trendInput = getTrendInput(data);
+  const refreshRows = getWeeklyTrendRefreshRows(data);
   const angles = playbook.angles
     .map(
       (angle, index) => `
@@ -2257,6 +2497,7 @@ function renderTrends(data) {
     <div class="metric-row">
       <div class="metric"><span>Trend signal</span><strong>${data.trendSignal}</strong></div>
       <div class="metric"><span>Observed trend</span><strong>${trendInput}</strong></div>
+      <div class="metric"><span>Source note</span><strong>${data.trendSource || "Add evidence"}</strong></div>
       <div class="metric"><span>Client niche</span><strong>${data.industry}</strong></div>
       <div class="metric"><span>Best use</span><strong>${data.platform}</strong></div>
     </div>
@@ -2270,6 +2511,26 @@ function renderTrends(data) {
         <p>${playbook.adaptation}</p>
       </div>
     </div>
+    <h4>Weekly source -> signal -> mechanic -> client-fit -> risk -> field update</h4>
+    <table>
+      <thead><tr><th>Source</th><th>Signal</th><th>Mechanic</th><th>Client fit</th><th>Risk</th><th>Field update</th></tr></thead>
+      <tbody>
+        ${refreshRows
+          .map(
+            (row) => `
+              <tr>
+                <td>${row.source}</td>
+                <td>${row.signal}</td>
+                <td>${row.mechanic}</td>
+                <td>${row.fit}</td>
+                <td>${row.risk}</td>
+                <td>${row.update}</td>
+              </tr>
+            `
+          )
+          .join("")}
+      </tbody>
+    </table>
     <h4>Trend-to-content angles</h4>
     <table>
       <thead><tr><th>#</th><th>Client-ready angle</th><th>Opening hook</th><th>Format</th></tr></thead>
@@ -2288,6 +2549,8 @@ function renderTrends(data) {
     <div class="result-card">
       <h4>Brand-fit and rights check</h4>
       <p>${playbook.risk}</p>
+      <p><strong>Logged source:</strong> ${data.trendSource || "Add the source, date, and observed signal before delivery."}</p>
+      <p><strong>Asset rights:</strong> ${data.rightsCheck || "Confirm owned footage, licensed sound, creator permissions, and AI-video disclosure needs."}</p>
       <p>Before client delivery, verify the current hashtag, sound, and creator format in TikTok Creative Center or inside the TikTok app. This workspace adapts trends; it does not scrape live TikTok data.</p>
     </div>
   `;
@@ -2504,6 +2767,8 @@ ${getRenewalDecision(data)}
 - Audience memory: ${data.audienceMemory || "No audience memory saved yet."}
 - Brand Brain: ${data.brandBrain || "No brand rules saved yet."}
 - Red lines: ${data.redLines || "No red lines saved yet."}
+- Trend source: ${data.trendSource || "No trend source logged yet."}
+- Rights check: ${data.rightsCheck || "No asset rights check logged yet."}
 - Winning pattern: ${data.winningPattern || "No winner logged yet."}
 - Latest test result: ${data.testResult || "No test result logged yet."}
 - Approval owner/state: ${data.approvalOwner || "Founder"} / ${data.approvalState || "Drafting"}
