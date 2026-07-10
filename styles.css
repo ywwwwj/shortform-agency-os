@@ -3778,6 +3778,15 @@ textarea:focus-visible {
     grid-template-columns: 1fr 1fr;
   }
 
+  .compact-feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .compact-cta {
+    display: grid;
+    justify-items: start;
+  }
+
   .nav {
     display: none;
   }
@@ -3864,6 +3873,19 @@ textarea:focus-visible {
   .compact-links,
   .compact-price-row {
     grid-template-columns: 1fr;
+  }
+
+  .compact-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-cta div {
+    max-width: none;
+  }
+
+  .compact-cta .primary-btn,
+  .compact-cta .secondary-btn {
+    width: 100%;
   }
 
   .dashboard-head,

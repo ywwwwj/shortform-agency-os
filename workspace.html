@@ -54,9 +54,9 @@
     <main class="workspace">
       <aside class="form-panel" aria-label="Client input">
         <div class="panel-head">
-          <p class="kicker">AI-assisted client workspace</p>
-          <h1>Run the whole client sprint from one operating desk.</h1>
-          <p>Paste messy context into the AI Desk, structure it into client memory, then generate the output layer: briefs, sites, scripts, approval notes, learning logs, and renewal reports.</p>
+          <p class="kicker">Client delivery efficiency workspace</p>
+          <h1>Reduce repeated admin around every client sprint.</h1>
+          <p>Reuse client context, stop unclear revisions before production, log what worked, and compare real preparation, approval, revision, and reporting effort over time.</p>
           <div class="workspace-guide">
             <button type="button" data-sample="nova">Load NovaClips AI</button>
             <button type="button" data-sample="harbor">Load Harbor Coffee</button>
@@ -263,6 +263,29 @@
             <textarea name="revisionReason">Clarify the offer and keep the hook specific. Do not make the discount the only reason to watch.</textarea>
           </label>
 
+          <fieldset class="efficiency-fields">
+            <legend>Efficiency baseline</legend>
+            <p>Log the current effort honestly. Save this project after each sprint to compare against the first snapshot.</p>
+            <div class="efficiency-field-grid">
+              <label>
+                Brief prep time (minutes)
+                <input name="briefPrepMinutes" type="number" min="0" step="5" value="45" />
+              </label>
+              <label>
+                Approval wait (days)
+                <input name="approvalWaitDays" type="number" min="0" step="0.5" value="2" />
+              </label>
+              <label>
+                Revision rounds
+                <input name="revisionRounds" type="number" min="0" step="1" value="2" />
+              </label>
+              <label>
+                Report prep time (minutes)
+                <input name="reportPrepMinutes" type="number" min="0" step="5" value="30" />
+              </label>
+            </div>
+          </fieldset>
+
           <label>
             Project status
             <select name="status">
@@ -317,8 +340,8 @@
       <section class="output-panel" aria-label="Generated deliverables">
         <div class="focus-strip">
           <strong>Start here:</strong>
-          <span>AI Desk is the platform entry. Website, scripts, templates, and reports are now the output layer inside the client workspace.</span>
-          <button type="button" id="jumpWebsiteBtn">Show website</button>
+          <span>Load a sample, review AI Desk, save an efficiency baseline, then update the same project after the next sprint.</span>
+          <button type="button" id="jumpWebsiteBtn">Show output</button>
         </div>
         <div class="output-toolbar">
           <div>
@@ -332,6 +355,7 @@
             <button class="tab premium-tab" type="button" data-target="profile">Profile</button>
             <button class="tab premium-tab" type="button" data-target="clients">Clients</button>
             <button class="tab premium-tab" type="button" data-target="memory">Memory</button>
+            <button class="tab premium-tab" type="button" data-target="efficiency">Efficiency</button>
             <button class="tab premium-tab" type="button" data-target="packs">Packs</button>
             <button class="tab" type="button" data-target="website">Website</button>
             <button class="tab" type="button" data-target="summary">Summary</button>
@@ -353,6 +377,7 @@
         <article class="result-view" id="profile"></article>
         <article class="result-view" id="clients"></article>
         <article class="result-view" id="memory"></article>
+        <article class="result-view" id="efficiency"></article>
         <article class="result-view" id="packs"></article>
         <article class="result-view" id="summary"></article>
         <article class="result-view" id="template"></article>

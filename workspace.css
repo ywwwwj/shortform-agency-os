@@ -925,6 +925,74 @@ textarea:focus-visible {
   margin: 14px 0;
 }
 
+.efficiency-fields {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  margin: 4px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.efficiency-fields legend {
+  padding: 0 8px;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 900;
+}
+
+.efficiency-fields > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.efficiency-field-grid,
+.efficiency-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.efficiency-strip {
+  margin: 14px 0;
+}
+
+.efficiency-strip article {
+  border: 1px solid var(--line);
+  padding: 18px;
+  background: #fffdf8;
+}
+
+.efficiency-strip span {
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.efficiency-strip strong {
+  display: block;
+  margin: 8px 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 28px;
+  line-height: 1.05;
+}
+
+.efficiency-strip p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.efficiency-change {
+  color: var(--green);
+}
+
+.efficiency-baseline {
+  color: var(--muted);
+}
+
 .memory-strip {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -1612,6 +1680,8 @@ th {
 
   .memory-strip,
   .memory-grid,
+  .efficiency-field-grid,
+  .efficiency-strip,
   .operator-path,
   .ai-desk-grid,
   .explainability-grid,

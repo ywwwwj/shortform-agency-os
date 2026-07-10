@@ -255,6 +255,10 @@ const sampleClients = {
     approvalOwner: "Founder",
     approvalState: "Needs client approval",
     revisionReason: "Clarify the offer and avoid making the content look like a gimmick.",
+    briefPrepMinutes: "55",
+    approvalWaitDays: "3",
+    revisionRounds: "3",
+    reportPrepMinutes: "40",
     status: "Proposal sent",
     feedback: "Untested",
     skillDepth: "Strategist",
@@ -285,6 +289,10 @@ const sampleClients = {
     approvalOwner: "Founder",
     approvalState: "Drafting",
     revisionReason: "Do not make the discount the only reason to watch.",
+    briefPrepMinutes: "45",
+    approvalWaitDays: "2",
+    revisionRounds: "2",
+    reportPrepMinutes: "30",
     status: "New lead",
     feedback: "Topics worked",
     skillDepth: "Operator",
@@ -315,6 +323,10 @@ const sampleClients = {
     approvalOwner: "Marketing lead",
     approvalState: "Approved to produce",
     revisionReason: "Keep language premium and avoid discount framing.",
+    briefPrepMinutes: "70",
+    approvalWaitDays: "4",
+    revisionRounds: "3",
+    reportPrepMinutes: "50",
     status: "In delivery",
     feedback: "Quote accepted",
     skillDepth: "Advisor",
@@ -697,6 +709,14 @@ function buildLearningEntry(data, previousProject) {
   if (!lastEntry || lastEntry.approvalState !== data.approvalState) changed.push("approval state");
   if (!lastEntry || lastEntry.feedback !== data.feedback) changed.push("feedback");
   if (!lastEntry || lastEntry.testResult !== data.testResult) changed.push("latest learning");
+  if (
+    !lastEntry ||
+    ["briefPrepMinutes", "approvalWaitDays", "revisionRounds", "reportPrepMinutes"].some(
+      (key) => String(lastEntry[key] ?? "") !== String(data[key] ?? "")
+    )
+  ) {
+    changed.push("efficiency metrics");
+  }
 
   return {
     id: crypto.randomUUID(),
@@ -708,6 +728,10 @@ function buildLearningEntry(data, previousProject) {
     testResult: data.testResult || "No test result logged yet.",
     winningPattern: data.winningPattern || "No winner logged yet.",
     revisionReason: data.revisionReason || "No blocker logged yet.",
+    briefPrepMinutes: data.briefPrepMinutes || "0",
+    approvalWaitDays: data.approvalWaitDays || "0",
+    revisionRounds: data.revisionRounds || "0",
+    reportPrepMinutes: data.reportPrepMinutes || "0",
     nextDecision: getRenewalDecision(data),
     changed: changed.length ? changed : ["snapshot"],
   };
@@ -724,9 +748,117 @@ function mergeLearningLog(data, previousProject) {
     lastEntry.approvalState === nextEntry.approvalState &&
     lastEntry.testResult === nextEntry.testResult &&
     lastEntry.winningPattern === nextEntry.winningPattern &&
-    lastEntry.revisionReason === nextEntry.revisionReason;
+    lastEntry.revisionReason === nextEntry.revisionReason &&
+    lastEntry.briefPrepMinutes === nextEntry.briefPrepMinutes &&
+    lastEntry.approvalWaitDays === nextEntry.approvalWaitDays &&
+    lastEntry.revisionRounds === nextEntry.revisionRounds &&
+    lastEntry.reportPrepMinutes === nextEntry.reportPrepMinutes;
 
   return isSameAsLast ? previousLog : [nextEntry, ...previousLog].slice(0, 8);
+}
+
+const efficiencyMetricConfig = [
+  { key: "briefPrepMinutes", label: "Brief prep", unit: "min", lowerIsBetter: true },
+  { key: "approvalWaitDays", label: "Approval wait", unit: "days", lowerIsBetter: true },
+  { key: "revisionRounds", label: "Revision rounds", unit: "rounds", lowerIsBetter: true },
+  { key: "reportPrepMinutes", label: "Report prep", unit: "min", lowerIsBetter: true },
+];
+
+function toMetricNumber(value) {
+  const number = Number.parseFloat(value);
+  return Number.isFinite(number) && number >= 0 ? number : 0;
+}
+
+function getEfficiencySnapshot(data) {
+  return Object.fromEntries(efficiencyMetricConfig.map((metric) => [metric.key, toMetricNumber(data[metric.key])]));
+}
+
+function getEfficiencyComparison(data) {
+  const history = getProjectHistory(data)
+    .filter((entry) => efficiencyMetricConfig.some((metric) => entry[metric.key] !== undefined))
+    .slice()
+    .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  const baseline = history.length ? getEfficiencySnapshot(history[0]) : null;
+  const current = getEfficiencySnapshot(data);
+  return { baseline, current, snapshots: history.length };
+}
+
+function formatMetricAmount(value, unit) {
+  const normalizedUnit = value === 1 ? { days: "day", rounds: "round" }[unit] || unit : unit;
+  const displayValue = value.toFixed(value % 1 ? 1 : 0);
+  return `${displayValue} ${normalizedUnit}`;
+}
+
+function describeEfficiencyChange(metric, baseline, current) {
+  if (!baseline || baseline <= 0) {
+    return { summary: "Baseline pending", detail: "Save this project once to establish an honest starting point.", className: "efficiency-baseline" };
+  }
+
+  const delta = baseline - current;
+  const percentage = Math.round((Math.abs(delta) / baseline) * 100);
+  if (delta > 0) {
+    return {
+      summary: `${formatMetricAmount(delta, metric.unit)} less`,
+      detail: `${percentage}% lower than the first saved snapshot.`,
+      className: "efficiency-change",
+    };
+  }
+  if (delta < 0) {
+    return {
+      summary: `${formatMetricAmount(Math.abs(delta), metric.unit)} more`,
+      detail: `${percentage}% higher than the first saved snapshot. Review the blocker before claiming an efficiency gain.`,
+      className: "efficiency-baseline",
+    };
+  }
+  return { summary: "No change yet", detail: "Current value matches the first saved snapshot.", className: "efficiency-baseline" };
+}
+
+function renderEfficiency(data) {
+  const comparison = getEfficiencyComparison(data);
+  const timeSaved = comparison.baseline
+    ? Math.max(0, comparison.baseline.briefPrepMinutes - comparison.current.briefPrepMinutes) +
+      Math.max(0, comparison.baseline.reportPrepMinutes - comparison.current.reportPrepMinutes)
+    : 0;
+  const improvedMetrics = comparison.baseline
+    ? efficiencyMetricConfig.filter((metric) => comparison.current[metric.key] < comparison.baseline[metric.key]).length
+    : 0;
+
+  return `
+    <h3>Efficiency ledger</h3>
+    <p>Measure whether the workspace actually reduces delivery effort. Values are self-reported process metrics, not guaranteed savings.</p>
+    <div class="efficiency-strip">
+      <article><span>Saved snapshots</span><strong>${comparison.snapshots}</strong><p>${comparison.baseline ? "Compared with the first saved sprint." : "Save this project to establish the baseline."}</p></article>
+      <article><span>Tracked time saved</span><strong>${comparison.baseline ? `${timeSaved} min` : "Pending"}</strong><p>Brief preparation plus report preparation only.</p></article>
+      <article><span>Metrics improved</span><strong>${comparison.baseline ? `${improvedMetrics} / 4` : "Pending"}</strong><p>No improvement is claimed until a baseline exists.</p></article>
+      <article><span>Evidence standard</span><strong>Before / after</strong><p>Use saved snapshots instead of invented ROI percentages.</p></article>
+    </div>
+    <div class="efficiency-strip">
+      ${efficiencyMetricConfig
+        .map((metric) => {
+          const current = comparison.current[metric.key];
+          const baseline = comparison.baseline?.[metric.key];
+          const change = describeEfficiencyChange(metric, baseline, current);
+          return `
+            <article>
+              <span>${metric.label}</span>
+              <strong class="${change.className}">${change.summary}</strong>
+              <p>Current: ${formatMetricAmount(current, metric.unit)}${comparison.baseline ? ` / baseline: ${formatMetricAmount(baseline, metric.unit)}` : ""}</p>
+              <p>${change.detail}</p>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+    <div class="result-card">
+      <h4>How to improve the next sprint</h4>
+      <ul>
+        <li>Reuse the saved client profile instead of rebuilding the brief.</li>
+        <li>Name one approval owner, one deadline, and one revision window before production.</li>
+        <li>Classify every request as a fix, minor edit, new version, reshoot, or scope change.</li>
+        <li>Generate the renewal report from saved learning while the sprint is still fresh.</li>
+      </ul>
+    </div>
+  `;
 }
 
 function getTrendInput(data) {
@@ -844,6 +976,10 @@ function newProject() {
   form.elements.approvalOwner.value = "Founder";
   form.elements.approvalState.value = "Drafting";
   form.elements.revisionReason.value = "No blocker logged yet.";
+  form.elements.briefPrepMinutes.value = "45";
+  form.elements.approvalWaitDays.value = "2";
+  form.elements.revisionRounds.value = "2";
+  form.elements.reportPrepMinutes.value = "30";
   form.elements.assets.value = "Existing photos, product notes, testimonials, and founder clips.";
   form.elements.notes.value = "Make the content useful, clear, and easy to act on.";
   generate();
@@ -2822,6 +2958,7 @@ function generate() {
     profile: renderClientProfile(data),
     clients: renderClientOS(data),
     memory: renderMemory(data),
+    efficiency: renderEfficiency(data),
     packs: renderDeliveryPacks(data),
     template: renderGeneratedTemplate(data),
     next: renderNext(data),
@@ -2849,6 +2986,7 @@ function generate() {
     htmlToMarkdown("Client Profile", sections.profile),
     htmlToMarkdown("Client-Level Memory", sections.clients),
     htmlToMarkdown("Client Memory", sections.memory),
+    htmlToMarkdown("Efficiency Ledger", sections.efficiency),
     htmlToMarkdown("Client-Ready Delivery Packs", sections.packs),
     htmlToMarkdown("Generated Template", sections.template),
     htmlToMarkdown("Next Steps", sections.next),
