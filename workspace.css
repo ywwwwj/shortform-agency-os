@@ -1704,9 +1704,20 @@ th {
   }
 
   .app-actions {
-    max-width: calc(100vw - 72px);
-    overflow-x: auto;
-    padding-bottom: 4px;
+    flex: 1;
+    justify-content: flex-end;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 38px;
+    flex: 0 0 36px;
+  }
+
+  .icon-btn span {
+    font-size: 10px;
   }
 
   .brand strong {
