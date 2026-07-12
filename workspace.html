@@ -36,18 +36,15 @@
         <button class="icon-btn" id="saveProjectBtn" type="button" title="Save project">
           <span aria-hidden="true">S</span>
         </button>
-        <button class="icon-btn" id="copyAllBtn" type="button" title="Copy all">
-          <span aria-hidden="true">C</span>
+        <button class="icon-btn cloud-btn" id="cloudAuthBtn" type="button" title="Connect cloud account" aria-label="Connect cloud account">
+          <span aria-hidden="true">CLOUD</span>
         </button>
-        <button class="icon-btn" id="downloadBtn" type="button" title="Download Markdown">
-          <span aria-hidden="true">MD</span>
-        </button>
-        <button class="icon-btn" id="downloadWebsiteBtn" type="button" title="Download Website HTML">
-          <span aria-hidden="true">HTML</span>
-        </button>
-        <button class="icon-btn" id="downloadReportBtn" type="button" title="Download Renewal Report" aria-label="Download Renewal Report">
-          <span aria-hidden="true">RPT</span>
-        </button>
+        <div class="export-menu-wrap">
+          <button class="icon-btn export-btn" id="exportMenuBtn" type="button" title="Export workspace" aria-expanded="false" aria-controls="exportMenu">
+            <span aria-hidden="true">EXPORT</span>
+          </button>
+          <div class="export-menu" id="exportMenu" hidden></div>
+        </div>
       </div>
     </header>
 
@@ -394,7 +391,7 @@
             <p class="kicker">Platform workspace</p>
             <h1 id="activeViewTitle">AI Desk</h1>
           </div>
-          <span class="local-status">Saved locally on this device</span>
+          <span class="local-status" id="cloudStatus">Local mode: saved on this device</span>
         </div>
 
         <article class="result-view active" id="aidesk"></article>
@@ -436,8 +433,35 @@
       <button class="primary-btn dialog-action" id="helpOpenBriefBtn" type="button">Open client brief</button>
     </dialog>
 
+    <dialog class="auth-dialog" id="authDialog">
+      <div class="dialog-head">
+        <div>
+          <p class="kicker">Cloud workspace</p>
+          <h2>Keep client memory across devices.</h2>
+        </div>
+        <button class="drawer-close" id="closeAuthBtn" type="button" aria-label="Close cloud account dialog">&times;</button>
+      </div>
+      <p id="authDialogStatus">Cloud sync is optional. Until you connect an account, projects remain in this browser only.</p>
+      <form class="auth-form" id="authForm">
+        <label>
+          Email
+          <input id="authEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+        </label>
+        <button class="primary-btn" type="submit">Send sign-in link</button>
+      </form>
+      <div class="auth-actions">
+        <button class="secondary-dialog-btn" id="syncCloudBtn" type="button">Sync this device</button>
+        <button class="secondary-dialog-btn" id="importLocalBtn" type="button">Upload current local projects</button>
+        <button class="secondary-dialog-btn" id="signOutBtn" type="button">Sign out</button>
+      </div>
+      <p class="auth-note">Cloud sync uses your account with row-level data protection. AI keys never live in this browser.</p>
+    </dialog>
+
     <div class="toast" id="toast">Copied</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./cloud-config.js"></script>
+    <script src="./workspace-cloud.js"></script>
     <script src="./workspace.js"></script>
   </body>
 </html>

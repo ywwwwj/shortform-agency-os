@@ -70,6 +70,10 @@ a {
   gap: 8px;
 }
 
+.export-menu-wrap {
+  position: relative;
+}
+
 .icon-btn {
   display: grid;
   place-items: center;
@@ -93,6 +97,71 @@ a {
   font-family: "Space Grotesk", sans-serif;
   font-size: 12px;
   font-weight: 900;
+}
+
+.cloud-btn span,
+.export-btn span {
+  font-size: 10px;
+}
+
+.export-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: min(340px, calc(100vw - 24px));
+  border: 1px solid var(--ink);
+  padding: 10px;
+  background: #fffdf8;
+  box-shadow: 12px 14px 0 rgba(23, 20, 17, 0.14);
+}
+
+.export-menu-label {
+  margin: 3px 5px 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.export-menu-item {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+  border: 1px solid transparent;
+  padding: 11px;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.export-menu-item:hover,
+.export-menu-item.recommended {
+  border-color: var(--line);
+  background: #fff;
+}
+
+.export-menu-item.recommended {
+  box-shadow: inset 4px 0 0 var(--green);
+}
+
+.export-menu-item strong {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.export-menu-item strong span {
+  color: var(--green);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.export-menu-item small {
+  color: var(--muted);
+  line-height: 1.35;
 }
 
 .btn-icon {
@@ -1864,6 +1933,195 @@ th {
   transform: translate(-50%, 0);
 }
 
+.auth-dialog {
+  width: min(540px, calc(100% - 28px));
+  border: 1px solid var(--ink);
+  padding: 24px;
+  color: var(--ink);
+  background: #fffdf8;
+  box-shadow: 18px 18px 0 rgba(23, 20, 17, 0.16);
+}
+
+.auth-dialog::backdrop {
+  background: rgba(23, 20, 17, 0.42);
+}
+
+.auth-dialog > p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 900;
+}
+
+.auth-form input {
+  width: 100%;
+  border: 1px solid var(--line);
+  padding: 12px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.secondary-dialog-btn {
+  border: 1px solid var(--ink);
+  padding: 10px 12px;
+  color: var(--ink);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.auth-note {
+  margin-bottom: 0;
+  font-size: 13px;
+}
+
+.local-status[data-state="connected"] {
+  color: var(--green);
+}
+
+.local-status[data-state="syncing"] {
+  color: var(--red);
+}
+
+.cloud-ai-assistant {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--ink);
+  margin: 16px 0;
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(199, 255, 79, 0.22), transparent 42%),
+    #fffdf8;
+}
+
+.cloud-ai-assistant > div:first-child > span,
+.ai-suggestion-card > span {
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cloud-ai-assistant h4 {
+  margin: 8px 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 28px;
+  line-height: 1.08;
+}
+
+.cloud-ai-assistant p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.cloud-ai-jobs,
+.ai-suggestion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cloud-ai-jobs button,
+.ai-suggestion-actions button {
+  border: 1px solid var(--ink);
+  padding: 11px 13px;
+  color: var(--ink);
+  background: var(--yellow);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.cloud-ai-jobs button:nth-child(2),
+.ai-suggestion-actions button:last-child {
+  background: #fff;
+}
+
+.cloud-ai-jobs button:nth-child(3) {
+  color: #fff;
+  background: var(--ink);
+}
+
+.cloud-ai-jobs button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.ai-empty-state,
+.ai-suggestion-card {
+  border: 1px solid var(--line);
+  padding: 18px;
+  background: #fff;
+}
+
+.ai-empty-state strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+}
+
+.ai-suggestion-card h4 {
+  margin: 8px 0 12px;
+  font-size: 24px;
+}
+
+.ai-suggestion-card > p {
+  max-width: none;
+  margin: 8px 0;
+}
+
+.ai-suggestion-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.ai-suggestion-columns > div,
+.ai-proposed-updates {
+  border: 1px solid var(--line);
+  padding: 14px;
+  background: #fffdf8;
+}
+
+.ai-suggestion-columns ul {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.ai-suggestion-columns small,
+.ai-proposed-updates small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.ai-proposed-updates p {
+  margin: 10px 0 0;
+}
+
 @media (max-width: 980px) {
   .workspace {
     grid-template-columns: 1fr;
@@ -1921,6 +2179,7 @@ th {
 
   .memory-strip,
   .memory-grid,
+  .ai-suggestion-columns,
   .efficiency-field-grid,
   .efficiency-strip,
   .operator-path,
@@ -1959,6 +2218,11 @@ th {
 
   .icon-btn span {
     font-size: 10px;
+  }
+
+  .cloud-btn span,
+  .export-btn span {
+    font-size: 8px;
   }
 
   .brand strong {

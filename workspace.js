@@ -1,10 +1,6 @@
 const form = document.querySelector("#projectForm");
 const tabs = document.querySelectorAll(".tab");
 const views = document.querySelectorAll(".result-view");
-const copyAllBtn = document.querySelector("#copyAllBtn");
-const downloadBtn = document.querySelector("#downloadBtn");
-const downloadWebsiteBtn = document.querySelector("#downloadWebsiteBtn");
-const downloadReportBtn = document.querySelector("#downloadReportBtn");
 const saveProjectBtn = document.querySelector("#saveProjectBtn");
 const newProjectBtn = document.querySelector("#newProjectBtn");
 const sampleClientBtn = document.querySelector("#sampleClientBtn");
@@ -21,6 +17,18 @@ const openHelpBtn = document.querySelector("#openHelpBtn");
 const closeHelpBtn = document.querySelector("#closeHelpBtn");
 const helpOpenBriefBtn = document.querySelector("#helpOpenBriefBtn");
 const activeViewTitle = document.querySelector("#activeViewTitle");
+const exportMenuBtn = document.querySelector("#exportMenuBtn");
+const exportMenu = document.querySelector("#exportMenu");
+const cloudAuthBtn = document.querySelector("#cloudAuthBtn");
+const cloudStatus = document.querySelector("#cloudStatus");
+const authDialog = document.querySelector("#authDialog");
+const closeAuthBtn = document.querySelector("#closeAuthBtn");
+const authForm = document.querySelector("#authForm");
+const authEmail = document.querySelector("#authEmail");
+const authDialogStatus = document.querySelector("#authDialogStatus");
+const syncCloudBtn = document.querySelector("#syncCloudBtn");
+const importLocalBtn = document.querySelector("#importLocalBtn");
+const signOutBtn = document.querySelector("#signOutBtn");
 
 const storageKey = "shortform-studio-projects-v2";
 let projects = loadProjects();
@@ -29,6 +37,8 @@ let latestWebsiteHtml = "";
 let latestAdvisorReport = "";
 let latestRenewalExport = "";
 let latestDeliveryPacks = {};
+let latestAiSuggestion = null;
+let cloudSyncInProgress = false;
 
 if (window.lucide) {
   window.lucide.createIcons();
@@ -895,11 +905,138 @@ function showToast(message) {
   setTimeout(() => toast.classList.remove("show"), 1600);
 }
 
+function cloudIsReady() {
+  return Boolean(window.ShortFormCloud?.configured?.());
+}
+
+function setCloudStatus(message, state = "local") {
+  if (!cloudStatus) return;
+  cloudStatus.textContent = message;
+  cloudStatus.dataset.state = state;
+}
+
+async function refreshCloudStatus() {
+  if (!cloudIsReady()) {
+    setCloudStatus("Local mode: saved on this device", "local");
+    return;
+  }
+  try {
+    const user = await window.ShortFormCloud.getUser();
+    setCloudStatus(user ? `Cloud connected: ${user.email}` : "Cloud ready: sign in to sync", user ? "connected" : "ready");
+  } catch {
+    setCloudStatus("Cloud unavailable: working locally", "local");
+  }
+}
+
+async function syncCloudData() {
+  if (!cloudIsReady()) throw new Error("Cloud sync has not been configured yet.");
+  if (cloudSyncInProgress) return;
+  cloudSyncInProgress = true;
+  setCloudStatus("Cloud sync in progress...", "syncing");
+  try {
+    projects = await window.ShortFormCloud.syncProjects(projects);
+    persistProjects();
+    renderProjectList();
+    generate();
+    await refreshCloudStatus();
+    showToast("Cloud data synced");
+  } finally {
+    cloudSyncInProgress = false;
+  }
+}
+
+function downloadText(filename, content, mimeType = "text/markdown;charset=utf-8") {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportItemsForView(viewId = "aidesk") {
+  const data = getData();
+  const recommendation = {
+    website: "website-html",
+    efficiency: "renewal-report",
+    memory: "renewal-report",
+    advisor: "renewal-report",
+    packs: "learning-report",
+    report: "learning-report",
+  }[viewId] || "client-delivery-pack";
+  const items = [
+    { key: "copy-workspace", label: "Copy workspace", detail: "Copy the full structured workspace", recommended: recommendation === "copy-workspace" },
+    { key: "client-delivery-pack", label: "Client delivery pack", detail: "Download all workspace outputs as Markdown", recommended: recommendation === "client-delivery-pack" },
+    { key: "website-html", label: "Website HTML", detail: "Download the generated landing page", recommended: recommendation === "website-html" },
+    { key: "renewal-report", label: "Renewal report", detail: "Download the current renewal advisor report", recommended: recommendation === "renewal-report" },
+    { key: "learning-report", label: "Learning report", detail: "Download monthly learning and approval analysis", recommended: recommendation === "learning-report" },
+    { key: "backup-all", label: "Backup all client data", detail: "Download a JSON backup of this device", recommended: recommendation === "backup-all" },
+  ];
+  return { data, items };
+}
+
+function renderExportMenu(viewId) {
+  if (!exportMenu) return;
+  const { items } = exportItemsForView(viewId);
+  exportMenu.innerHTML = `
+    <p class="export-menu-label">Recommended for this view</p>
+    ${items
+      .map(
+        (item) => `
+          <button class="export-menu-item${item.recommended ? " recommended" : ""}" type="button" data-export-action="${item.key}">
+            <strong>${item.label}${item.recommended ? " <span>Recommended</span>" : ""}</strong>
+            <small>${item.detail}</small>
+          </button>
+        `
+      )
+      .join("")}
+  `;
+}
+
+async function recordCloudExport(type) {
+  try {
+    await window.ShortFormCloud?.recordExport?.(getCurrentProject(), type);
+  } catch {
+    // Export remains local when cloud telemetry is unavailable.
+  }
+}
+
+async function runExport(action) {
+  const data = getData();
+  const filename = data.clientName || "client";
+  if (action === "copy-workspace") {
+    await navigator.clipboard.writeText(latestMarkdown);
+    showToast("Workspace copied");
+  }
+  if (action === "client-delivery-pack") {
+    downloadText(`${filename}-client-delivery-pack.md`, latestMarkdown);
+    showToast("Client delivery pack downloaded");
+  }
+  if (action === "website-html") {
+    downloadWebsiteHtml();
+  }
+  if (action === "renewal-report") {
+    downloadText(`${filename}-renewal-advisor-report.md`, latestAdvisorReport);
+    showToast("Renewal report downloaded");
+  }
+  if (action === "learning-report") {
+    downloadText(`${filename}-learning-report.md`, latestDeliveryPacks.monthly || latestRenewalExport);
+    showToast("Learning report downloaded");
+  }
+  if (action === "backup-all") {
+    downloadText(`shortform-client-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(projects, null, 2), "application/json;charset=utf-8");
+    showToast("Local client backup downloaded");
+  }
+  recordCloudExport(action);
+}
+
 function activateTab(targetId) {
   tabs.forEach((item) => item.classList.toggle("active", item.dataset.target === targetId));
   views.forEach((view) => view.classList.toggle("active", view.id === targetId));
   const activeTab = [...tabs].find((item) => item.dataset.target === targetId);
   if (activeTab && activeViewTitle) activeViewTitle.textContent = activeTab.textContent.trim();
+  renderExportMenu(targetId);
 }
 
 function openBriefDrawer() {
@@ -964,7 +1101,7 @@ function renderProjectList() {
     });
 }
 
-function saveProject() {
+async function saveProject() {
   const data = getData();
   const id = data.projectId || crypto.randomUUID();
   const index = projects.findIndex((project) => project.id === id);
@@ -990,6 +1127,15 @@ function saveProject() {
   renderProjectList();
   generate();
   showToast("Project saved locally");
+  if (cloudIsReady()) {
+    window.ShortFormCloud
+      .getUser()
+      .then((user) => {
+        if (user) return syncCloudData();
+        return null;
+      })
+      .catch(() => setCloudStatus("Cloud sync paused: local copy is safe", "local"));
+  }
 }
 
 function newProject() {
@@ -1027,6 +1173,106 @@ function loadSampleClient(sampleKey = "nova") {
   activateTab("aidesk");
   renderProjectList();
   showToast(`${sample.clientName} sample loaded`);
+}
+
+const aiFieldLabels = {
+  audienceMemory: "Audience memory",
+  brandBrain: "Brand Brain",
+  redLines: "Red lines",
+  assets: "Proof assets",
+  winningPattern: "Winning pattern",
+  testResult: "Latest learning",
+  revisionReason: "Revision reason",
+  notes: "Project notes",
+  approvalOwner: "Approval owner",
+  approvalState: "Approval state",
+};
+
+function renderAiSuggestion() {
+  if (!latestAiSuggestion) return `<div class="ai-empty-state"><strong>No AI suggestion yet</strong><p>Choose one focused job. The AI will return the context it used, its reasoning, uncertainty, and proposed memory updates for you to approve.</p></div>`;
+  const suggestion = latestAiSuggestion.suggestion || {};
+  return `
+    <div class="ai-suggestion-card">
+      <span>${escapeHtml(suggestion.title || "AI suggestion")}</span>
+      <h4>${escapeHtml(suggestion.summary || "Review this before saving")}</h4>
+      <p><strong>Suggestion:</strong> ${escapeHtml(suggestion.suggestion || "No suggestion returned.")}</p>
+      <p><strong>Why:</strong> ${escapeHtml(suggestion.reason || "No reasoning returned.")}</p>
+      <div class="ai-suggestion-columns">
+        <div><strong>Client memory used</strong><ul>${(suggestion.memory_used || []).map((item) => `<li>${escapeHtml(item.type)}: ${escapeHtml(item.value)}<small>${escapeHtml(item.reason)}</small></li>`).join("") || "<li>No saved memory was used.</li>"}</ul></div>
+        <div><strong>Model is uncertain about</strong><ul>${(suggestion.uncertainties || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>No uncertainty was identified.</li>"}</ul></div>
+      </div>
+      <div class="ai-proposed-updates">
+        <strong>Proposed memory updates</strong>
+        ${(suggestion.proposed_memory_updates || []).map((item) => `<p><b>${escapeHtml(aiFieldLabels[item.field] || item.field)}:</b> ${escapeHtml(item.value)}<small>${escapeHtml(item.rationale)}</small></p>`).join("") || "<p>No memory changes proposed.</p>"}
+      </div>
+      <div class="ai-suggestion-actions">
+        <button type="button" data-ai-suggestion-action="approve">Approve and save</button>
+        <button type="button" data-ai-suggestion-action="reject">Reject suggestion</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderCloudAiAssistant() {
+  const connected = cloudIsReady();
+  return `
+    <section class="cloud-ai-assistant">
+      <div>
+        <span>Cloud AI assistant</span>
+        <h4>Use account memory, not a blank prompt.</h4>
+        <p>${connected ? "Three focused jobs are ready. Save and sync the current project first, then review every proposed memory update before it becomes permanent." : "Cloud AI is not configured in this deployment yet. The local workspace and BYO-AI prompt remain available."}</p>
+      </div>
+      <div class="cloud-ai-jobs">
+        <button type="button" data-ai-job="intake"${connected ? "" : " disabled"}>Organize client info</button>
+        <button type="button" data-ai-job="revision"${connected ? "" : " disabled"}>Analyze revision reasons</button>
+        <button type="button" data-ai-job="next-sprint"${connected ? "" : " disabled"}>Recommend next sprint</button>
+      </div>
+      <div id="aiSuggestionPanel">${renderAiSuggestion()}</div>
+    </section>
+  `;
+}
+
+async function runCloudAiJob(job) {
+  if (!cloudIsReady()) {
+    authDialog.showModal();
+    showToast("Configure cloud sync before using AI jobs");
+    return;
+  }
+  try {
+    await syncCloudData();
+    const project = getCurrentProject();
+    const result = await window.ShortFormCloud.runAi(job, project);
+    latestAiSuggestion = { runId: result.runId, job, suggestion: result.suggestion };
+    generate();
+    activateTab("aidesk");
+    showToast("AI suggestion ready for review");
+  } catch (error) {
+    showToast(error.message || "AI job could not run");
+  }
+}
+
+async function applyAiSuggestion(approved) {
+  if (!latestAiSuggestion) return;
+  try {
+    if (approved) {
+      for (const update of latestAiSuggestion.suggestion.proposed_memory_updates || []) {
+        const field = form.elements[update.field];
+        if (!field || !aiFieldLabels[update.field]) continue;
+        field.value = update.value;
+      }
+      await window.ShortFormCloud?.setAiDisposition?.(latestAiSuggestion.runId, "approved");
+      await saveProject();
+      showToast("Approved AI updates saved to client memory");
+    } else {
+      await window.ShortFormCloud?.setAiDisposition?.(latestAiSuggestion.runId, "rejected");
+      showToast("AI suggestion rejected; client memory was unchanged");
+    }
+    latestAiSuggestion = null;
+    generate();
+    activateTab("aidesk");
+  } catch (error) {
+    showToast(error.message || "Could not update AI suggestion status");
+  }
 }
 
 function renderAIDesk(data) {
@@ -1082,6 +1328,7 @@ Do not copy a meme, sound, or creator directly. Extract the mechanic and rewrite
       <h3>Turn messy client work into a structured operating system.</h3>
       <p>This is the bridge from the old tool kit to the platform: paste client notes into AI, then store the structured result as profile, brief, approval logic, learning, and renewal material.</p>
     </div>
+    ${renderCloudAiAssistant()}
     <div class="operator-path">
       <article><span>Step 1</span><strong>Paste messy notes</strong><p>Use client emails, WhatsApp messages, briefs, call notes, trend links, or revision feedback.</p></article>
       <article><span>Step 2</span><strong>Review why</strong><p>Each recommendation should show the reason, risk, and next operator action before you send anything to the client.</p></article>
@@ -3083,6 +3330,78 @@ sampleClientBtn.addEventListener("click", () => {
   openBriefDrawer();
 });
 
+exportMenuBtn.addEventListener("click", () => {
+  const isOpen = !exportMenu.hidden;
+  exportMenu.hidden = isOpen;
+  exportMenuBtn.setAttribute("aria-expanded", String(!isOpen));
+  if (!isOpen) renderExportMenu([...tabs].find((tab) => tab.classList.contains("active"))?.dataset.target);
+});
+
+cloudAuthBtn.addEventListener("click", async () => {
+  authDialog.showModal();
+  if (!cloudIsReady()) {
+    authDialogStatus.textContent = "Cloud sync is not configured in this deployment. Add the Supabase public URL, anon key, and Worker URL to cloud-config.js when you are ready.";
+    authForm.hidden = true;
+    syncCloudBtn.hidden = true;
+    importLocalBtn.hidden = true;
+    signOutBtn.hidden = true;
+    return;
+  }
+  authForm.hidden = false;
+  syncCloudBtn.hidden = false;
+  importLocalBtn.hidden = false;
+  try {
+    const user = await window.ShortFormCloud.getUser();
+    authDialogStatus.textContent = user ? `Signed in as ${user.email}. Sync or upload your local projects.` : "Sign in with an email link, then upload the projects already saved on this device.";
+    signOutBtn.hidden = !user;
+  } catch {
+    authDialogStatus.textContent = "Cloud connection could not be reached. Your local projects are unchanged.";
+  }
+});
+
+closeAuthBtn.addEventListener("click", () => authDialog.close());
+authDialog.addEventListener("click", (event) => {
+  if (event.target === authDialog) authDialog.close();
+});
+
+authForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  try {
+    await window.ShortFormCloud.signInWithEmail(authEmail.value.trim());
+    authDialogStatus.textContent = "Sign-in link sent. Open it in this browser, then return here to sync your projects.";
+  } catch (error) {
+    authDialogStatus.textContent = error.message || "Could not send sign-in link.";
+  }
+});
+
+syncCloudBtn.addEventListener("click", async () => {
+  try {
+    await syncCloudData();
+    authDialogStatus.textContent = "Cloud sync complete. Your local projects remain available offline.";
+  } catch (error) {
+    authDialogStatus.textContent = error.message || "Cloud sync could not run.";
+  }
+});
+
+importLocalBtn.addEventListener("click", async () => {
+  try {
+    await syncCloudData();
+    authDialogStatus.textContent = `Uploaded ${projects.length} local project(s) to your cloud workspace.`;
+  } catch (error) {
+    authDialogStatus.textContent = error.message || "Could not upload local projects.";
+  }
+});
+
+signOutBtn.addEventListener("click", async () => {
+  try {
+    await window.ShortFormCloud.signOut();
+    authDialogStatus.textContent = "Signed out. All existing local projects remain on this device.";
+    await refreshCloudStatus();
+  } catch (error) {
+    authDialogStatus.textContent = error.message || "Could not sign out.";
+  }
+});
+
 document.addEventListener("click", (event) => {
   const sampleKey = event.target.closest("[data-sample]")?.dataset.sample;
   if (sampleKey) {
@@ -3090,39 +3409,27 @@ document.addEventListener("click", (event) => {
   }
 });
 
-copyAllBtn.addEventListener("click", async () => {
-  await navigator.clipboard.writeText(latestMarkdown);
-  showToast("Copied all content");
-});
-
-downloadBtn.addEventListener("click", () => {
-  const data = getData();
-  const blob = new Blob([latestMarkdown], { type: "text/markdown;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${data.clientName || "client"}-shortform-project-pack.md`;
-  link.click();
-  URL.revokeObjectURL(url);
-});
-
-downloadWebsiteBtn.addEventListener("click", () => {
-  downloadWebsiteHtml();
-});
-
-downloadReportBtn.addEventListener("click", () => {
-  const data = getData();
-  const blob = new Blob([latestAdvisorReport], { type: "text/markdown;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${data.clientName || "client"}-renewal-advisor-report.md`;
-  link.click();
-  URL.revokeObjectURL(url);
-  showToast("Renewal advisor report downloaded");
-});
-
 document.addEventListener("click", async (event) => {
+  const exportAction = event.target.closest("[data-export-action]")?.dataset.exportAction;
+  if (exportAction) {
+    exportMenu.hidden = true;
+    exportMenuBtn.setAttribute("aria-expanded", "false");
+    await runExport(exportAction);
+    return;
+  }
+
+  const aiJob = event.target.closest("[data-ai-job]")?.dataset.aiJob;
+  if (aiJob) {
+    await runCloudAiJob(aiJob);
+    return;
+  }
+
+  const aiSuggestionAction = event.target.closest("[data-ai-suggestion-action]")?.dataset.aiSuggestionAction;
+  if (aiSuggestionAction) {
+    await applyAiSuggestion(aiSuggestionAction === "approve");
+    return;
+  }
+
   const profileEditorAction = event.target.closest("[data-profile-editor-action]")?.dataset.profileEditorAction;
   if (profileEditorAction) {
     applyProfileEditor(profileEditorAction === "save");
@@ -3206,3 +3513,15 @@ document.addEventListener("click", async (event) => {
 generate();
 renderProjectList();
 activateHashTab();
+renderExportMenu([...tabs].find((tab) => tab.classList.contains("active"))?.dataset.target || "aidesk");
+refreshCloudStatus();
+window.addEventListener("shortform:cloud-status", (event) => {
+  const detail = event.detail || {};
+  setCloudStatus(detail.message || "Cloud status updated", detail.state || "ready");
+});
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".export-menu-wrap") && !exportMenu.hidden) {
+    exportMenu.hidden = true;
+    exportMenuBtn.setAttribute("aria-expanded", "false");
+  }
+});
