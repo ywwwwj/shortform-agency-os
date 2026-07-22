@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Beta Test Room | ShortForm Content OS</title>
+    <meta
+      name="description"
+      content="A local beta testing room for ShortForm Content OS to record channel, task completion, retention, purchase intent, and market signal."
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" /></noscript>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../index.html" aria-label="ShortForm Content OS"><span>SF</span><strong>ShortForm Content OS</strong></a>
+      <nav class="nav" aria-label="Beta navigation">
+        <a href="../index.html">Home</a>
+        <a href="../workspace.html#brain">Brand Brain</a>
+        <a href="../workspace.html#create">Create</a>
+        <a href="../workspace.html#learning">Learning</a>
+      </nav>
+      <a class="ghost-link" href="../workspace.html">Open workspace</a>
+    </header>
+
+    <main>
+      <section class="beta-hero">
+        <div>
+          <p class="kicker">Beta Test Room</p>
+          <h1>Do not ask if people like it. Test whether they understand and would use it.</h1>
+          <p>
+            Use this page while testing creators, small brands, freelancers, and agency operators. The goal is to prove
+            whether ShortForm Content OS saves repeated brand explanation and earns repeat use, not whether people merely like AI output.
+          </p>
+        </div>
+        <aside>
+          <span>Success gate</span>
+          <strong>20 contacts. 5 tests. 5 first drafts. 2 returns. 1 paid signal.</strong>
+          <p>If testers mainly call it a prompt pack or one-time generator, the repeat-use value is still too weak.</p>
+          <a class="text-link" href="../workspace.html">Open workspace</a>
+          <a class="text-link" href="../pricing.html">Open pricing</a>
+        </aside>
+      </section>
+
+      <section class="beta-flow">
+        <div class="section-head">
+          <div class="zone-label"><span>5-minute demo</span><strong>Use this order</strong></div>
+          <h2>Show workflow proof before asking for opinions.</h2>
+        </div>
+        <div class="beta-flow-grid">
+          <article><span>01</span><strong>Channel</strong><p>Log Reddit, X, Instagram, referral, or another source before the demo.</p></article>
+          <article><span>02</span><strong>Homepage</strong><p>Ask: "Who is this for and what would you use it for?" Do not explain yet.</p></article>
+          <article><span>03</span><strong>Brand Brain</strong><p>Save voice, proof, offer, or customer objections for one real or sample brand.</p></article>
+          <article><span>04</span><strong>Create</strong><p>Ask the tester to generate the first content project and name the missing context.</p></article>
+          <article><span>05</span><strong>Learning</strong><p>Show a saved result, rewrite, or repurpose flow, then ask what would make them return.</p></article>
+          <article><span>06</span><strong>Ask price</strong><p>Test local-first access, cloud Brand Memory, and multi-brand pricing without discounting first.</p></article>
+        </div>
+      </section>
+
+      <section class="beta-dashboard">
+        <div class="section-head">
+          <div class="zone-label"><span>Market signal</span><strong>Local evidence</strong></div>
+          <h2>Record the reaction immediately after the demo.</h2>
+        </div>
+        <div class="beta-score-panel" id="betaScorePanel"></div>
+      </section>
+
+      <section class="beta-room">
+        <form class="beta-form" id="betaTestForm">
+          <div>
+            <p class="kicker">Tester record</p>
+            <h2>Log one real reaction.</h2>
+          </div>
+
+          <label>
+            Tester name or handle
+            <input name="testerName" placeholder="@creator_handle or first name" />
+          </label>
+
+          <label>
+            Acquisition channel
+            <select name="channel">
+              <option value="Reddit">Reddit</option>
+              <option value="X">X</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Referral">Referral</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label>
+            Persona
+            <select name="persona">
+              <option value="Creator">Creator</option>
+              <option value="Small brand founder">Small brand founder</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Content team">Content team</option>
+              <option value="Agency operator">Agency operator</option>
+            </select>
+          </label>
+
+          <label>
+            What did they call the product?
+            <select name="productCategory">
+              <option value="Brand memory + content workflow">Brand memory + content workflow</option>
+              <option value="Content planning workspace">Content planning workspace</option>
+              <option value="AI script generator">AI script generator</option>
+              <option value="Prompt pack">Prompt pack</option>
+              <option value="Website template">Website template</option>
+              <option value="Agency workflow tool">Agency workflow tool</option>
+            </select>
+          </label>
+
+          <label>
+            Can they explain it without help?
+            <select name="canExplain">
+              <option value="Yes">Yes</option>
+              <option value="Partly">Partly</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+
+          <label>
+            Most valuable feature
+            <select name="primaryValue">
+              <option value="Brand Brain">Brand Brain</option>
+              <option value="Content Studio">Content Studio</option>
+              <option value="Learning loop">Learning loop</option>
+              <option value="Content Library">Content Library</option>
+              <option value="Agency reports">Agency reports</option>
+              <option value="No clear value">No clear value</option>
+            </select>
+          </label>
+
+          <label>
+            Test progress
+            <select name="testProgress">
+              <option value="Contacted only">Contacted only</option>
+              <option value="Replied">Replied</option>
+              <option value="Completed first generation">Completed first generation</option>
+              <option value="Returned within 7 days">Returned within 7 days</option>
+            </select>
+          </label>
+
+          <label>
+            Did they ask a buying/use-case question?
+            <select name="buyingQuestion">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+
+          <label>
+            Price reaction
+            <select name="priceReaction">
+              <option value="Creator tier feels realistic">Creator tier feels realistic</option>
+              <option value="Studio tier feels realistic">Studio tier feels realistic</option>
+              <option value="Agency tier possible with proof">Agency tier possible with proof</option>
+              <option value="Needs real cases first">Needs real cases first</option>
+              <option value="Would not pay">Would not pay</option>
+            </select>
+          </label>
+
+          <label>
+            Purchase intent, 1-5
+            <select name="purchaseIntent">
+              <option value="1">1 - No intent</option>
+              <option value="2">2 - Curious only</option>
+              <option value="3">3 - Might try later</option>
+              <option value="4">4 - Would use if polished</option>
+              <option value="5">5 - Wants to buy/use now</option>
+            </select>
+          </label>
+
+          <label>
+            Reuse / retention signal
+            <select name="reuseSignal">
+              <option value="Would use saved Brand Brain next time">Would use saved Brand Brain next time</option>
+              <option value="Would reopen to create next content">Would reopen to create next content</option>
+              <option value="Asked for cloud memory or another Brand">Asked for cloud memory or another Brand</option>
+              <option value="Returned after a real publish">Returned after a real publish</option>
+              <option value="No reuse signal yet">No reuse signal yet</option>
+            </select>
+          </label>
+
+          <label>
+            Reuse intent, 1-5
+            <select name="reuseIntent">
+              <option value="1">1 - No repeat use</option>
+              <option value="2">2 - Maybe as reference</option>
+              <option value="3">3 - Would try once</option>
+              <option value="4">4 - Would reuse with clients</option>
+              <option value="5">5 - Wants repeat workflow now</option>
+            </select>
+          </label>
+
+          <label>
+            Missing proof
+            <textarea name="missingProof" placeholder="What proof, screenshot, case, integration, or workflow detail did they need before buying?"></textarea>
+          </label>
+
+          <label>
+            Next retention improvement
+            <textarea name="retentionImprovement" placeholder="What should we improve so they would reopen it next week or use it with another client?"></textarea>
+          </label>
+
+          <label>
+            Notable quote
+            <textarea name="notableQuote" placeholder="Capture exact words about brand memory, content creation, repeat use, price, or confusion."></textarea>
+          </label>
+
+          <div class="beta-actions">
+            <button type="submit">Save beta record</button>
+            <button type="button" id="resetBetaForm">Clear form</button>
+            <button type="button" id="exportBetaTests">Export beta log</button>
+          </div>
+        </form>
+
+        <div class="beta-records">
+          <div class="section-head">
+            <div class="zone-label"><span>Evidence log</span><strong>Recorded testers</strong></div>
+            <h2>Signals beat opinions.</h2>
+          </div>
+          <div class="beta-record-list" id="betaRecordList"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="betaToast" role="status" aria-live="polite"></div>
+    <script src="./beta-test.js"></script>
+  </body>
+</html>
