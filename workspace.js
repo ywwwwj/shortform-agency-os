@@ -35,6 +35,7 @@ const feedbackBtn = document.querySelector("#feedbackBtn");
 const feedbackDialog = document.querySelector("#feedbackDialog");
 const closeFeedbackBtn = document.querySelector("#closeFeedbackBtn");
 const feedbackForm = document.querySelector("#feedbackForm");
+const emailFeedbackBtn = document.querySelector("#emailFeedbackBtn");
 const revisionDialog = document.querySelector("#revisionDialog");
 const closeRevisionBtn = document.querySelector("#closeRevisionBtn");
 const revisionForm = document.querySelector("#revisionForm");
@@ -66,6 +67,24 @@ let activeContentComparisonId = "";
 
 function trackUsage(event, metadata = {}) {
   window.ShortFormContentOS?.trackUsage?.(event, metadata);
+}
+
+function buildFeedbackEmailHref(input = {}) {
+  const subject = "ShortForm Content OS beta feedback";
+  const body = [
+    "ShortForm Content OS beta feedback",
+    "",
+    `Role: ${input.role || "Not recorded"}`,
+    `Usefulness: ${input.rating || "Not recorded"}/5`,
+    `Would pay: ${input.wouldPay || "Not recorded"}`,
+    `Workspace mode: ${input.mode || "Not recorded"}`,
+    `Content project: ${input.activeContentId || "Not recorded"}`,
+    "",
+    `Confusing or missing: ${input.blocker || "Not recorded"}`,
+    `Reason to reopen: ${input.nextValue || "Not recorded"}`,
+    `Quote: ${input.quote || "Not recorded"}`,
+  ].join("\n");
+  return `mailto:yiwenjun@westlake.edu.cn?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 window.ShortFormContentOS?.migrateLegacyProjects(projects);
@@ -3825,6 +3844,14 @@ feedbackForm.addEventListener("submit", (event) => {
   generate();
   activateTab("today");
   showToast("Feedback saved on this device");
+});
+
+emailFeedbackBtn.addEventListener("click", () => {
+  const response = Object.fromEntries(new FormData(feedbackForm).entries());
+  response.mode = workspaceMode || "brand";
+  response.activeContentId = activeContentId || "";
+  trackUsage("feedback_email_opened", { mode: response.mode });
+  window.location.href = buildFeedbackEmailHref(response);
 });
 
 closeRevisionBtn.addEventListener("click", () => revisionDialog.close());

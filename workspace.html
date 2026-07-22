@@ -499,7 +499,7 @@
         </div>
         <button class="drawer-close" id="closeFeedbackBtn" type="button" aria-label="Close feedback dialog">&times;</button>
       </div>
-      <p>Your response is saved on this device and can be included in the backup for a user test. It is not sent to a server yet.</p>
+      <p>Your response can stay on this device, or you can voluntarily open an email draft to send it. Nothing is sent automatically.</p>
       <form class="feedback-form" id="feedbackForm">
         <label>Role<select name="role"><option>Creator</option><option>Small brand founder</option><option>Freelancer</option><option>Agency operator</option><option>Other</option></select></label>
         <label>How useful was the last task?<select name="rating"><option value="5">5 - Very useful</option><option value="4">4 - Useful</option><option value="3">3 - Mixed</option><option value="2">2 - Difficult</option><option value="1">1 - Blocked</option></select></label>
@@ -508,6 +508,7 @@
         <label>What would make you reopen this next week?<textarea name="nextValue" placeholder="For example: remember my winning hooks, export a calendar, or compare versions."></textarea></label>
         <label>Short quote or note<textarea name="quote" placeholder="Optional exact customer wording."></textarea></label>
         <button class="primary-btn" type="submit">Save feedback locally</button>
+        <div class="feedback-email-action"><button class="secondary-dialog-btn" id="emailFeedbackBtn" type="button">Open email with this feedback</button><small>Your email app opens next. You choose whether to send it.</small></div>
       </form>
     </dialog>
 

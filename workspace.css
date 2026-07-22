@@ -2025,6 +2025,17 @@ th {
   resize: vertical;
 }
 
+.feedback-email-action {
+  display: grid;
+  gap: 7px;
+  padding-top: 2px;
+}
+
+.feedback-email-action small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .auth-actions {
   display: flex;
   flex-wrap: wrap;
