@@ -1,6 +1,6 @@
 window.SHORTFORM_CHECKOUT = {
-  starter: "mailto:yiwenjun@westlake.edu.cn?subject=ShortForm%20Agency%20OS%20Starter%20beta%20access",
-  agency: "mailto:yiwenjun@westlake.edu.cn?subject=ShortForm%20Agency%20OS%20beta%20access",
-  advisor: "mailto:yiwenjun@westlake.edu.cn?subject=ShortForm%20Agency%20OS%20Advisor%20waitlist",
+  creator: "mailto:yiwenjun@westlake.edu.cn?subject=ShortForm%20Content%20OS%20Creator%20beta%20access",
+  studio: "mailto:yiwenjun@westlake.edu.cn?subject=ShortForm%20Content%20OS%20Studio%20beta%20access",
+  agency: "mailto:yiwenjun@westlake.edu.cn?subject=ShortForm%20Content%20OS%20Agency%20beta%20access",
   platformNote: "Public beta access is handled by email until checkout is live.",
 };

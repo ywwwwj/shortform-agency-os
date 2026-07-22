@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ShortForm Agency OS Workspace</title>
+    <title>ShortForm Content OS</title>
     <meta
       name="description"
-      content="Use the Agency OS platform workspace to organize client notes, build profiles, hand off to AI, manage approvals, log learning, and export renewal reports."
+      content="Build on-brand content from persistent Brand Brain memory, review drafts, record learning, and grow a repeatable content system."
     />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap"
@@ -21,23 +21,29 @@
     <header class="appbar">
       <a class="brand" href="./index.html">
         <span>SF</span>
-        <strong>Agency OS Workspace</strong>
+        <strong>ShortForm Content OS</strong>
       </a>
       <div class="app-actions">
         <a class="icon-btn" href="./demo.html" title="Watch demo">
           <span aria-hidden="true">DEMO</span>
         </a>
-        <button class="icon-btn" id="newProjectBtn" type="button" title="New project">
+        <button class="icon-btn legacy-project-action" id="newProjectBtn" type="button" title="New project">
           <span aria-hidden="true">+</span>
         </button>
-        <button class="icon-btn" id="sampleClientBtn" type="button" title="Load sample client">
+        <button class="icon-btn legacy-project-action" id="sampleClientBtn" type="button" title="Load sample client">
           <span aria-hidden="true">EX</span>
         </button>
-        <button class="icon-btn" id="saveProjectBtn" type="button" title="Save project">
+        <button class="icon-btn legacy-project-action" id="saveProjectBtn" type="button" title="Save project">
           <span aria-hidden="true">S</span>
         </button>
         <button class="icon-btn cloud-btn" id="cloudAuthBtn" type="button" title="Connect cloud account" aria-label="Connect cloud account">
           <span aria-hidden="true">CLOUD</span>
+        </button>
+        <button class="icon-btn mode-btn" id="modeSwitchBtn" type="button" title="Choose workspace mode" aria-label="Choose workspace mode">
+          <span aria-hidden="true">MODE</span>
+        </button>
+        <button class="icon-btn" id="feedbackBtn" type="button" title="Send product feedback" aria-label="Send product feedback">
+          <span aria-hidden="true">FEEDBACK</span>
         </button>
         <div class="export-menu-wrap">
           <button class="icon-btn export-btn" id="exportMenuBtn" type="button" title="Export workspace" aria-expanded="false" aria-controls="exportMenu">
@@ -53,7 +59,7 @@
         <div class="nav-primary-actions">
           <button class="nav-command" id="openBriefBtn" type="button">
             <span>+</span>
-            Edit client brief
+            Edit context
           </button>
           <button class="nav-command secondary" id="openHelpBtn" type="button">
             <span>?</span>
@@ -61,31 +67,30 @@
           </button>
         </div>
 
-        <p class="nav-section-label">Operate</p>
-        <button class="tab active premium-tab" type="button" data-target="aidesk">AI Desk</button>
-        <button class="tab premium-tab" type="button" data-target="advisor">Advisor</button>
-        <button class="tab premium-tab" type="button" data-target="efficiency">Efficiency</button>
-        <button class="tab premium-tab" type="button" data-target="packs">Export packs</button>
+        <p class="nav-section-label">Content system</p>
+        <button class="tab active premium-tab" type="button" data-target="today">Today</button>
+        <button class="tab premium-tab" type="button" data-target="brain">Brand Brain</button>
+        <button class="tab premium-tab" type="button" data-target="create">Create</button>
+        <button class="tab premium-tab" type="button" data-target="library">Content Library</button>
+        <button class="tab premium-tab" type="button" data-target="calendar">Calendar</button>
+        <button class="tab premium-tab" type="button" data-target="learning">Learning</button>
 
-        <p class="nav-section-label">Client intelligence</p>
-        <button class="tab premium-tab" type="button" data-target="clients">Clients</button>
-        <button class="tab premium-tab" type="button" data-target="profile">Profile</button>
-        <button class="tab premium-tab" type="button" data-target="memory">Memory</button>
-        <button class="tab premium-tab" type="button" data-target="skill">Skill OS</button>
+        <div class="agency-only">
+          <p class="nav-section-label">Agency operations</p>
+          <button class="tab premium-tab" type="button" data-target="clients">Clients</button>
+          <button class="tab premium-tab" type="button" data-target="approvals">Approvals</button>
+          <button class="tab premium-tab" type="button" data-target="efficiency">Efficiency</button>
+          <button class="tab premium-tab" type="button" data-target="reports">Reports</button>
+        </div>
 
-        <details class="nav-more">
-          <summary>Deliverables</summary>
+        <details class="nav-more agency-only">
+          <summary>Advanced tools</summary>
           <div>
-            <button class="tab" type="button" data-target="website">Website</button>
-            <button class="tab" type="button" data-target="summary">Summary</button>
-            <button class="tab" type="button" data-target="template">Template</button>
-            <button class="tab" type="button" data-target="next">Next sprint</button>
-            <button class="tab" type="button" data-target="trends">Trends</button>
-            <button class="tab" type="button" data-target="topics">Topics</button>
-            <button class="tab" type="button" data-target="calendar">Calendar</button>
-            <button class="tab" type="button" data-target="quote">Quote</button>
-            <button class="tab" type="button" data-target="script">Script</button>
-            <button class="tab" type="button" data-target="report">Report</button>
+            <button class="tab" type="button" data-target="aidesk">Legacy Agency Desk</button>
+            <button class="tab" type="button" data-target="advisor">Advisor</button>
+            <button class="tab" type="button" data-target="memory">Memory</button>
+            <button class="tab" type="button" data-target="skill">Skill OS</button>
+            <button class="tab" type="button" data-target="packs">Export packs</button>
           </div>
         </details>
       </nav>
@@ -94,12 +99,12 @@
         <div class="drawer-head">
           <div>
             <p class="kicker">Project setup</p>
-            <strong>Client brief</strong>
+          <strong>Brand context</strong>
           </div>
-          <button class="drawer-close" id="closeBriefBtn" type="button" aria-label="Close client brief">&times;</button>
+          <button class="drawer-close" id="closeBriefBtn" type="button" aria-label="Close brand context">&times;</button>
         </div>
         <div class="panel-head">
-          <p class="kicker">Start from an industry preset</p>
+          <p class="kicker">Start from a Brand or industry preset</p>
           <div class="workspace-guide">
             <button type="button" data-sample="nova">Load NovaClips AI</button>
             <button type="button" data-sample="harbor">Load Harbor Coffee</button>
@@ -109,8 +114,8 @@
 
         <section class="project-desk" aria-label="Project history">
           <div class="desk-head">
-            <h2>Project files</h2>
-            <span id="projectCount">0 projects</span>
+            <h2>Saved work</h2>
+            <span id="projectCount">0 items</span>
           </div>
           <div class="project-list" id="projectList"></div>
         </section>
@@ -118,12 +123,12 @@
         <form id="projectForm">
           <input type="hidden" name="projectId" />
           <label>
-            Client / brand name
+            Brand / client name
             <input name="clientName" value="Harbor Coffee" />
           </label>
 
           <label>
-            Niche / industry
+            Brand category / industry
             <input name="industry" value="local coffee shop" />
           </label>
 
@@ -383,18 +388,25 @@
       <section class="output-panel" aria-label="Generated deliverables">
         <div class="focus-strip">
           <strong>Start here:</strong>
-          <span>Open the brief, load a sample, then use one focused tool at a time.</span>
-          <button type="button" id="jumpWebsiteBtn">View website</button>
+          <span>Build one Brand Brain, create one content project, then record what you learn.</span>
+          <button type="button" id="jumpWebsiteBtn">Create content</button>
         </div>
         <div class="output-toolbar">
           <div>
             <p class="kicker">Platform workspace</p>
-            <h1 id="activeViewTitle">AI Desk</h1>
+            <h1 id="activeViewTitle">Today</h1>
           </div>
           <span class="local-status" id="cloudStatus">Local mode: saved on this device</span>
         </div>
 
-        <article class="result-view active" id="aidesk"></article>
+        <article class="result-view active" id="today"></article>
+        <article class="result-view" id="brain"></article>
+        <article class="result-view" id="create"></article>
+        <article class="result-view" id="library"></article>
+        <article class="result-view" id="learning"></article>
+        <article class="result-view" id="approvals"></article>
+        <article class="result-view" id="reports"></article>
+        <article class="result-view" id="aidesk"></article>
         <article class="result-view" id="website"></article>
         <article class="result-view" id="advisor"></article>
         <article class="result-view" id="skill"></article>
@@ -425,12 +437,34 @@
         <button class="drawer-close" id="closeHelpBtn" type="button" aria-label="Close help">&times;</button>
       </div>
       <div class="help-steps">
-        <article><span>01</span><strong>Set the client context</strong><p>Open Client brief once and save the project.</p></article>
-        <article><span>02</span><strong>Run the sprint</strong><p>Use AI Desk, Advisor, and the deliverable views without rebuilding context.</p></article>
+        <article><span>01</span><strong>Set the brand context</strong><p>Open Brand Brain once and save the context.</p></article>
+        <article><span>02</span><strong>Create the content</strong><p>Use Content Studio, then review and save the decisions that should carry forward.</p></article>
         <article><span>03</span><strong>Capture decisions</strong><p>Record approvals, revision reasons, and winning evidence in Memory.</p></article>
-        <article><span>04</span><strong>Prove improvement</strong><p>Compare the next sprint in Efficiency and export the renewal pack.</p></article>
+        <article><span>04</span><strong>Reuse what worked</strong><p>Record the result, then let Learning guide the next content test. Agency reports remain available when needed.</p></article>
       </div>
-      <button class="primary-btn dialog-action" id="helpOpenBriefBtn" type="button">Open client brief</button>
+      <button class="primary-btn dialog-action" id="helpOpenBriefBtn" type="button">Open brand context</button>
+    </dialog>
+
+    <dialog class="mode-dialog" id="modeDialog">
+      <div class="dialog-head">
+        <div>
+          <p class="kicker">Choose your workspace</p>
+          <h2>What are you creating for?</h2>
+        </div>
+      </div>
+      <p>Both modes use Brand Brain, Content Studio, Content Library, Calendar, and Learning. You can switch later without losing saved Brands.</p>
+      <div class="mode-options">
+        <button type="button" data-workspace-mode="brand">
+          <span>For my brand</span>
+          <strong>Create for my brand</strong>
+          <small>For creators, founders, and small teams building one or more owned brands.</small>
+        </button>
+        <button type="button" data-workspace-mode="agency">
+          <span>For client work</span>
+          <strong>Manage client content</strong>
+          <small>Add clients, approvals, efficiency tracking, reports, and renewal opportunities.</small>
+        </button>
+      </div>
     </dialog>
 
     <dialog class="auth-dialog" id="authDialog">
@@ -457,11 +491,67 @@
       <p class="auth-note">Cloud sync uses your account with row-level data protection. AI keys never live in this browser.</p>
     </dialog>
 
+    <dialog class="feedback-dialog" id="feedbackDialog">
+      <div class="dialog-head">
+        <div>
+          <p class="kicker">Product feedback</p>
+          <h2>What made this useful or difficult?</h2>
+        </div>
+        <button class="drawer-close" id="closeFeedbackBtn" type="button" aria-label="Close feedback dialog">&times;</button>
+      </div>
+      <p>Your response is saved on this device and can be included in the backup for a user test. It is not sent to a server yet.</p>
+      <form class="feedback-form" id="feedbackForm">
+        <label>Role<select name="role"><option>Creator</option><option>Small brand founder</option><option>Freelancer</option><option>Agency operator</option><option>Other</option></select></label>
+        <label>How useful was the last task?<select name="rating"><option value="5">5 - Very useful</option><option value="4">4 - Useful</option><option value="3">3 - Mixed</option><option value="2">2 - Difficult</option><option value="1">1 - Blocked</option></select></label>
+        <label>Would you pay for cloud memory or repeat use?<select name="wouldPay"><option>Yes, now</option><option>Maybe after proof</option><option>Only if cheaper</option><option>No</option><option>Not sure</option></select></label>
+        <label>What was confusing or missing?<textarea name="blocker" placeholder="Use exact words if possible."></textarea></label>
+        <label>What would make you reopen this next week?<textarea name="nextValue" placeholder="For example: remember my winning hooks, export a calendar, or compare versions."></textarea></label>
+        <label>Short quote or note<textarea name="quote" placeholder="Optional exact customer wording."></textarea></label>
+        <button class="primary-btn" type="submit">Save feedback locally</button>
+      </form>
+    </dialog>
+
+    <dialog class="workflow-dialog" id="revisionDialog">
+      <div class="dialog-head">
+        <div>
+          <p class="kicker">Revision reason</p>
+          <h2>What should change in this version?</h2>
+        </div>
+        <button class="drawer-close" id="closeRevisionBtn" type="button" aria-label="Close revision dialog">&times;</button>
+      </div>
+      <p>Save the reason in version history and Learning so the next content test can use a real decision, not a generic rewrite.</p>
+      <form class="workflow-form" id="revisionForm">
+        <input type="hidden" name="contentId" />
+        <label>Revision request<textarea name="reason" required placeholder="For example: lead with the creator's actual frustration before explaining the workflow."></textarea></label>
+        <button class="primary-btn" type="submit">Create revised draft</button>
+      </form>
+    </dialog>
+
+    <dialog class="workflow-dialog" id="performanceDialog">
+      <div class="dialog-head">
+        <div>
+          <p class="kicker">Record result</p>
+          <h2>What happened after this content?</h2>
+        </div>
+        <button class="drawer-close" id="closePerformanceBtn" type="button" aria-label="Close result dialog">&times;</button>
+      </div>
+      <p>Manual results are enough for early testing. Save one observable outcome and the lesson you want the next content project to reuse.</p>
+      <form class="workflow-form" id="performanceForm">
+        <input type="hidden" name="contentId" />
+        <label>Metric<select name="metric"><option>Saves</option><option>Shares</option><option>Replies / DMs</option><option>Clicks</option><option>Leads</option><option>Sales calls</option><option>Other manual result</option></select></label>
+        <label>Result<input name="value" required placeholder="For example: 18 saves" /></label>
+        <label>What did you learn?<textarea name="notes" placeholder="For example: specific creator pain performed better than a broad productivity claim."></textarea></label>
+        <button class="primary-btn" type="submit">Save result to Learning</button>
+      </form>
+    </dialog>
+
     <div class="toast" id="toast">Copied</div>
+    <input id="restoreBackupInput" type="file" accept="application/json,.json" hidden />
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./cloud-config.js"></script>
     <script src="./workspace-cloud.js"></script>
+    <script src="./content-os.js"></script>
     <script src="./workspace.js"></script>
   </body>
 </html>

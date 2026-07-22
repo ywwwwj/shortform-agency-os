@@ -10,7 +10,7 @@ This repository remains a static site until cloud configuration is enabled. GitH
 4. Add the Cloudflare Pages production URL and local preview URL to the Auth redirect allow list.
 5. Copy the project URL and anon key. The anon key may be placed in the public `cloud-config.js`; the service-role key must never be placed in the browser.
 
-The migration enables Row Level Security on every user-data table. Each browser query is restricted with `owner_id = auth.uid()` or `id = auth.uid()`.
+The migration enables Row Level Security on every user-data table. The cloud model is `workspace -> brands -> content projects -> versions / memory / learning`. Agency mode is simply a workspace with `mode = agency`; a client is represented by a Brand rather than a second data system.
 
 ## 2. Configure the browser
 
@@ -57,14 +57,15 @@ After deployment, update `cloud-config.js` with the Worker URL and publish it wi
 ## 5. First cloud login and offline behavior
 
 1. Existing local users click `CLOUD`, sign in with their email link, then choose `Upload current local projects`.
-2. The browser uploads projects, client memory, approvals, revision reasons, learning logs, and efficiency snapshots.
+2. The browser migrates legacy saved projects into Brands, then uploads Brand Brain modules, Content Projects, versions, approvals, revision reasons, and manually entered performance.
 3. Local storage remains the offline source while no session or network is available.
-4. A signed-in user can choose `Sync this device` to merge cloud projects. The more recently updated record wins for matching local project IDs.
+4. A signed-in user can choose `Sync this device` to merge cloud Brands and Content Projects. The more recently updated record wins for matching local IDs.
 
 ## 6. AI quota policy
 
 - `free`: 10 AI jobs per calendar month.
-- `solo`: 100 AI jobs per calendar month.
-- `studio`: 1000 AI jobs per calendar month.
+- `creator`: 100 AI jobs per calendar month.
+- `studio`: 500 AI jobs per calendar month.
+- `agency`: 1500 AI jobs per calendar month.
 
 The Worker reads `profiles.plan` to enforce these limits. Add billing or admin tooling later to change plan values. A customer-provided API key should be implemented only after an encrypted per-user key design is reviewed; it is intentionally not stored in the current browser app.

@@ -3811,11 +3811,18 @@ textarea:focus-visible {
   }
 
   .site-header {
+    gap: 8px;
     padding: 12px;
   }
 
   .brand strong {
     display: none;
+  }
+
+  .ghost-link {
+    min-width: 0;
+    padding: 9px 10px;
+    font-size: 12px;
   }
 
   .hero,
@@ -3859,7 +3866,34 @@ textarea:focus-visible {
   }
 
   h1 {
-    font-size: 44px;
+    font-size: 40px;
+    overflow-wrap: anywhere;
+  }
+
+  .zone-label {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .zone-label strong {
+    flex-basis: 100%;
+  }
+
+  .hero-actions.compact-actions a {
+    flex: 1 1 100%;
+  }
+
+  .generator-hero,
+  .generator-results,
+  .generator-pack {
+    width: calc(100% - 20px);
+  }
+
+  .generator-hero > div,
+  .generator-form,
+  .generator-panel {
+    padding: 20px;
   }
 
   .hero-proof,

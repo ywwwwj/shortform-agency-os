@@ -29,16 +29,46 @@ const authDialogStatus = document.querySelector("#authDialogStatus");
 const syncCloudBtn = document.querySelector("#syncCloudBtn");
 const importLocalBtn = document.querySelector("#importLocalBtn");
 const signOutBtn = document.querySelector("#signOutBtn");
+const modeSwitchBtn = document.querySelector("#modeSwitchBtn");
+const modeDialog = document.querySelector("#modeDialog");
+const feedbackBtn = document.querySelector("#feedbackBtn");
+const feedbackDialog = document.querySelector("#feedbackDialog");
+const closeFeedbackBtn = document.querySelector("#closeFeedbackBtn");
+const feedbackForm = document.querySelector("#feedbackForm");
+const revisionDialog = document.querySelector("#revisionDialog");
+const closeRevisionBtn = document.querySelector("#closeRevisionBtn");
+const revisionForm = document.querySelector("#revisionForm");
+const performanceDialog = document.querySelector("#performanceDialog");
+const closePerformanceBtn = document.querySelector("#closePerformanceBtn");
+const performanceForm = document.querySelector("#performanceForm");
+const restoreBackupInput = document.querySelector("#restoreBackupInput");
 
 const storageKey = "shortform-studio-projects-v2";
+const modeStorageKey = "shortform-content-os-mode-v1";
 let projects = loadProjects();
 let latestMarkdown = "";
 let latestWebsiteHtml = "";
 let latestAdvisorReport = "";
 let latestRenewalExport = "";
 let latestDeliveryPacks = {};
+let latestContentLearningExport = "";
+let latestContentWorkspaceExport = "";
 let latestAiSuggestion = null;
 let cloudSyncInProgress = false;
+let workspaceMode = localStorage.getItem(modeStorageKey) || "";
+let activeContentId = "";
+let activeLibraryFilter = "all";
+let activeLibraryBrand = "all";
+let activeLibraryPlatform = "all";
+let activeLibraryFormat = "all";
+let latestBrandExtraction = null;
+let activeContentComparisonId = "";
+
+function trackUsage(event, metadata = {}) {
+  window.ShortFormContentOS?.trackUsage?.(event, metadata);
+}
+
+window.ShortFormContentOS?.migrateLegacyProjects(projects);
 
 if (window.lucide) {
   window.lucide.createIcons();
@@ -880,6 +910,243 @@ function renderEfficiency(data) {
   `;
 }
 
+function setWorkspaceMode(mode) {
+  workspaceMode = mode;
+  localStorage.setItem(modeStorageKey, mode);
+  document.body.dataset.workspaceMode = mode;
+  document.querySelectorAll(".agency-only").forEach((element) => {
+    element.hidden = mode !== "agency";
+  });
+  if (openBriefBtn) openBriefBtn.innerHTML = mode === "agency" ? "<span>+</span> Edit client brief" : "<span>+</span> Edit brand context";
+  if (openBriefBtn) openBriefBtn.setAttribute("aria-label", mode === "agency" ? "Edit client brief" : "Edit brand context");
+  document.querySelector(".form-panel .kicker")?.replaceChildren(document.createTextNode(mode === "agency" ? "Project setup" : "Brand setup"));
+  document.querySelector(".form-panel .drawer-head strong")?.replaceChildren(document.createTextNode(mode === "agency" ? "Client context" : "Brand context"));
+  document.querySelector(".form-panel .panel-head .kicker")?.replaceChildren(document.createTextNode(mode === "agency" ? "Start from a client or industry preset" : "Start from a Brand or industry preset"));
+  document.querySelector(".project-desk h2")?.replaceChildren(document.createTextNode(mode === "agency" ? "Saved client work" : "Saved brand work"));
+  if (modeSwitchBtn) modeSwitchBtn.title = mode === "agency" ? "Agency mode: switch workspace mode" : "Brand mode: switch workspace mode";
+  if (modeDialog?.open) modeDialog.close();
+  if (mode !== "agency" && document.querySelector(".tab.active")?.dataset.target === "clients") activateTab("today");
+}
+
+function getBrands() {
+  return window.ShortFormContentOS?.listBrands?.() || [];
+}
+
+function getCurrentBrand() {
+  const data = getData();
+  const normalized = `${String(data.clientName || "").trim().toLowerCase()}::${String(data.industry || "").trim().toLowerCase()}`;
+  return getBrands().find((brand) => `${brand.name.trim().toLowerCase()}::${brand.category.trim().toLowerCase()}` === normalized) || getBrands()[0] || null;
+}
+
+function renderBrandOptions(selectedId) {
+  const brands = getBrands();
+  return brands.length
+    ? brands.map((brand) => `<option value="${brand.id}"${brand.id === selectedId ? " selected" : ""}>${escapeHtml(brand.name)}${brand.category ? ` - ${escapeHtml(brand.category)}` : ""}</option>`).join("")
+    : `<option value="">Create a Brand Brain first</option>`;
+}
+
+function renderToday() {
+  const brands = getBrands();
+  const brand = getCurrentBrand();
+  const content = window.ShortFormContentOS?.listContent?.({}) || [];
+  const drafts = content.filter((item) => ["Idea", "Draft", "Review"].includes(item.status));
+  const thisWeek = content.filter((item) => Date.now() - item.updatedAt < 7 * 24 * 60 * 60 * 1000);
+  const missing = brand ? window.ShortFormContentOS.missingBrandFields(brand) : ["Create your first Brand Brain"];
+  const learning = brand ? window.ShortFormContentOS.getLearning(brand.id) : null;
+  const hasContent = content.length > 0;
+  const hasResult = content.some((item) => item.status === "Learned" || String(item.performance?.value || "").trim());
+  const feedback = window.ShortFormContentOS?.listFeedback?.() || [];
+  const usage = window.ShortFormContentOS?.getUsageSummary?.() || { counts: {} };
+  const agencyExtra = workspaceMode === "agency"
+    ? `<div class="today-agency-grid">
+        <article><span>Waiting approval</span><strong>${content.filter((item) => item.status === "Review").length}</strong><p>Content projects currently in review.</p></article>
+        <article><span>Needs report</span><strong>${projects.filter((project) => project.status === "Needs report").length}</strong><p>Saved client sprints waiting for a report.</p></article>
+        <article><span>Renewal due</span><strong>${projects.filter((project) => project.status === "Renewal due").length}</strong><p>Use saved learning to prepare the next conversation.</p></article>
+      </div>`
+    : "";
+  return `
+    <div class="today-hero">
+      <span>Today / ${workspaceMode === "agency" ? "Agency mode" : "Brand mode"}</span>
+      <h3>${brand ? `${escapeHtml(brand.name)} content system` : "Start your content system"}</h3>
+      <p>${brand ? "Use the brand context you have already saved. Create one focused asset, review it, and record the result before creating more volume." : "Create a Brand Brain first. It becomes the context used by every content project."}</p>
+      <div class="today-actions">${brand ? '<button type="button" data-content-nav="create">Create content</button><button type="button" data-content-nav="brain">Open Brand Brain</button>' : '<button type="button" data-content-nav="brain">Build Brand Brain first</button>'}<button type="button" data-open-feedback>Record test feedback</button></div>
+    </div>
+    <section class="today-path" aria-label="Your first content loop">
+      <div class="today-path-head"><span>Your repeatable loop</span><strong>${[Boolean(brand), hasContent, hasResult].filter(Boolean).length}/3 complete</strong></div>
+      <div class="today-path-steps">
+        <button type="button" class="${brand ? "complete" : ""}" data-content-nav="brain"><b>1</b><span><strong>${brand ? "Brand Brain saved" : "Set your Brand Brain"}</strong><small>${brand ? "Your next draft can reuse this context." : "Add audience, offer, voice, and proof once."}</small></span></button>
+        <button type="button" class="${hasContent ? "complete" : ""}" data-content-nav="create"${brand ? "" : " disabled"}><b>2</b><span><strong>${hasContent ? "First draft created" : "Create one focused draft"}</strong><small>${hasContent ? "Open it to review, rewrite, or repurpose." : "Use a real customer question or product topic."}</small></span></button>
+        <button type="button" class="${hasResult ? "complete" : ""}" data-content-nav="library"${hasContent ? "" : " disabled"}><b>3</b><span><strong>${hasResult ? "Learning captured" : "Record a result"}</strong><small>${hasResult ? "The next test can now build on evidence." : "After publishing, save one result and what changed."}</small></span></button>
+      </div>
+    </section>
+    <div class="today-grid">
+      <article><span>To finish</span><strong>${drafts.length}</strong><p>${drafts.length ? "Drafts and reviews waiting for a decision." : "No unfinished content projects."}</p></article>
+      <article><span>Recent drafts</span><strong>${thisWeek.length}</strong><p>Content created or updated in the last seven days.</p></article>
+      <article><span>This week</span><strong>${content.filter((item) => item.status === "Approved").length}</strong><p>Approved content ready to schedule or publish.</p></article>
+      <article><span>Reusable winner</span><strong>${learning?.topHook || "Pending"}</strong><p>${learning ? "Based on saved content outcomes." : "Record one learned project to create a reusable pattern."}</p></article>
+      <article><span>Test feedback</span><strong>${feedback.length}</strong><p>${feedback.length ? `${feedback.filter((item) => item.wouldPay === "Yes, now").length} payment-ready response(s) saved locally.` : "Capture the first tester response after one real task."}</p></article>
+    </div>
+    ${agencyExtra}
+    <div class="today-split">
+      <article><span>Brand Memory gaps</span><ul>${missing.slice(0, 5).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>Brand Brain has the core details needed for a stronger first draft.</li>"}</ul></article>
+      <article><span>Recommended next content</span><strong>${learning?.nextTest || "Create a first draft from a real customer question, proof asset, or product topic."}</strong><p>${brand?.winningPatterns ? `Reuse the saved pattern: ${escapeHtml(brand.winningPatterns)}.` : "Keep the first test narrow enough to learn from it."} ${usage.counts.content_created ? `${usage.counts.content_created} content project(s) created on this device.` : ""}</p></article>
+    </div>
+  `;
+}
+
+function renderBrandBrain() {
+  const brand = getCurrentBrand() || { id: "", name: "", category: "", positioning: "", audience: "", offer: "", voice: "", proof: "", products: "", prohibitedClaims: "", competitors: "", winningPatterns: "", contentExamples: "", customerObjections: "" };
+  const missing = brand.id ? window.ShortFormContentOS.missingBrandFields(brand) : ["Brand positioning", "Audience", "Offer", "Voice", "Proof"];
+  return `
+    <div class="brain-hero"><span>Brand Brain</span><h3>Give every draft a stable brand context.</h3><p>Brand Brain is not an AI score. It only shows the facts and examples that are missing before a stronger content brief can be generated.</p></div>
+    <div class="brain-layout">
+      <form class="brand-brain-form" id="brandBrainForm">
+        <input type="hidden" name="id" value="${escapeHtml(brand.id)}" />
+        <label>Brand name<input name="name" value="${escapeHtml(brand.name)}" required /></label>
+        <label>Category / industry<input name="category" value="${escapeHtml(brand.category)}" /></label>
+        <label>Brand positioning<textarea name="positioning">${escapeHtml(brand.positioning)}</textarea></label>
+        <label>Audience<textarea name="audience">${escapeHtml(brand.audience)}</textarea></label>
+        <label>Offer<textarea name="offer">${escapeHtml(brand.offer)}</textarea></label>
+        <label>Voice + examples<textarea name="voice">${escapeHtml(brand.voice)}</textarea></label>
+        <label>Approved proof<textarea name="proof">${escapeHtml(brand.proof)}</textarea></label>
+        <label>Products / services<textarea name="products">${escapeHtml(brand.products)}</textarea></label>
+        <label>Prohibited claims<textarea name="prohibitedClaims">${escapeHtml(brand.prohibitedClaims)}</textarea></label>
+        <label>Competitors / references<textarea name="competitors">${escapeHtml(brand.competitors)}</textarea></label>
+        <label>Winning patterns<textarea name="winningPatterns">${escapeHtml(brand.winningPatterns)}</textarea></label>
+        <label>Content examples<textarea name="contentExamples">${escapeHtml(brand.contentExamples)}</textarea></label>
+        <label>Customer objections<textarea name="customerObjections">${escapeHtml(brand.customerObjections)}</textarea></label>
+        <button class="primary-btn" type="submit">Save Brand Brain</button>
+      </form>
+      <aside class="brain-sidecar">
+        <span>Missing information</span>
+        <h4>Complete what helps the next draft.</h4>
+        <ul>${missing.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>No urgent gaps found.</li>"}</ul>
+        <p>Paste old copy, customer feedback, website text, or chat notes below. Local rules can suggest fields from lines such as <strong>Audience: ...</strong>; nothing is saved until you review and submit the form.</p>
+        <textarea id="brandMemorySource" class="memory-source" placeholder="Audience: ...\nOffer: ...\nVoice: ...\nProof: ..."></textarea>
+        <div class="brain-sidecar-actions"><button type="button" data-brand-action="extract">Suggest fields</button><button type="button" data-brand-action="apply-extraction"${latestBrandExtraction ? "" : " disabled"}>Apply suggestions</button></div>
+        ${latestBrandExtraction ? `<div class="extraction-preview"><strong>Suggested fields</strong>${Object.entries(latestBrandExtraction).map(([key, value]) => `<p><b>${escapeHtml(aiFieldLabels[key] || key)}:</b> ${escapeHtml(value)}</p>`).join("")}</div>` : ""}
+        <button type="button" data-brand-action="new">Start a new Brand</button>
+      </aside>
+    </div>
+  `;
+}
+
+function renderContentOutput(item) {
+  if (!item) return `<div class="content-empty"><strong>No content project open</strong><p>Choose a Brand, goal, format, and topic. The first draft will show exactly which Brand Memory it used.</p></div>`;
+  const output = item.output;
+  const versions = item.versions || [];
+  const latestVersion = versions.at(-1);
+  const previousVersion = versions.at(-2);
+  const comparison = activeContentComparisonId === item.id && previousVersion && latestVersion
+    ? `<article class="content-version-compare"><span>Latest change</span><div><strong>${escapeHtml(previousVersion.label)}</strong><p><b>Hook:</b> ${escapeHtml(previousVersion.output?.hooks?.[0] || "No hook saved")}</p><p><b>CTA:</b> ${escapeHtml(previousVersion.output?.cta || "No CTA saved")}</p></div><div><strong>${escapeHtml(latestVersion.label)}</strong><p><b>Hook:</b> ${escapeHtml(latestVersion.output?.hooks?.[0] || "No hook saved")}</p><p><b>CTA:</b> ${escapeHtml(latestVersion.output?.cta || "No CTA saved")}</p></div><p class="version-reason"><b>Why it changed:</b> ${escapeHtml(latestVersion.reason || "No reason recorded")}</p></article>`
+    : "";
+  return `
+    <div class="content-output-head"><span>${escapeHtml(item.status)}</span><h4>${escapeHtml(item.topic || "Untitled content project")}</h4><p>${escapeHtml(output.angle)}</p></div>
+    <div class="content-output-grid">
+      <article><span>Hooks</span><ol>${output.hooks.map((hook) => `<li>${escapeHtml(hook)}</li>`).join("")}</ol></article>
+      <article><span>Caption + CTA</span><p>${escapeHtml(output.caption)}</p><strong>${escapeHtml(output.cta)}</strong></article>
+      <article><span>Visual beats</span><ol>${output.visualBeats.map((beat) => `<li>${escapeHtml(beat)}</li>`).join("")}</ol></article>
+      <article><span>Repurpose variants</span><ul>${output.repurposeVariants.map((variant) => `<li>${escapeHtml(variant)}</li>`).join("")}</ul></article>
+    </div>
+    <article class="content-script"><span>Script</span><pre>${escapeHtml(output.script)}</pre></article>
+    <div class="content-explain-grid">
+      <article><span>Memory used</span><ul>${output.memoryUsed.map((item) => `<li><strong>${escapeHtml(item.type)}</strong>${escapeHtml(item.value)}<small>${escapeHtml(item.reason)}</small></li>`).join("")}</ul></article>
+      <article><span>Why this angle</span><p>${escapeHtml(output.why)}</p><span>Assumptions</span><ul>${output.assumptions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></article>
+      <article><span>Possible risks</span><ul>${output.risks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></article>
+    </div>
+    <article class="content-version-history"><span>Version history</span><p>${versions.length} saved version${versions.length === 1 ? "" : "s"}. Every rewrite, repurpose, and result keeps its reason.</p><ol>${versions.slice().reverse().slice(0, 4).map((version) => `<li><strong>${escapeHtml(version.label)}</strong><small>${escapeHtml(version.reason || "No reason recorded")}</small></li>`).join("")}</ol></article>
+    ${comparison}
+    <div class="content-output-actions"><button type="button" data-content-action="save-memory" data-content-id="${item.id}">Save pattern to Brand Memory</button><button type="button" data-content-action="rewrite" data-content-id="${item.id}">Rewrite with feedback</button><button type="button" data-content-action="repurpose" data-content-id="${item.id}">Repurpose for platform</button>${versions.length > 1 ? `<button type="button" data-content-action="compare" data-content-id="${item.id}">${activeContentComparisonId === item.id ? "Hide version comparison" : "Compare latest version"}</button>` : ""}<button type="button" data-content-action="advance" data-content-id="${item.id}">Move to next status</button></div>
+  `;
+}
+
+function renderCreateStudio() {
+  const brands = getBrands();
+  if (!brands.length) {
+    return `
+      <div class="studio-hero"><span>Content Studio / Local rules</span><h3>Start with a Brand Brain.</h3><p>A local draft needs saved brand context: at minimum a name, audience, offer, voice, or proof. This browser flow does not call an AI model.</p></div>
+      <div class="content-empty"><strong>No Brand Brain is ready yet</strong><p>Save one Brand before creating the first content project. The next draft will then show exactly which context it used.</p><div class="today-actions"><button type="button" data-content-nav="brain">Build Brand Brain</button></div></div>
+    `;
+  }
+  const active = activeContentId ? window.ShortFormContentOS.getContent(activeContentId) : null;
+  const selectedBrand = active?.brandId || getCurrentBrand()?.id || brands[0]?.id || "";
+  return `
+    <div class="studio-hero"><span>Content Studio / Local rules</span><h3>Create one on-brand content project.</h3><p>Choose a Brand, goal, format, topic or source material, then create a structured local draft from the Brand Brain you saved. This browser flow does not call an AI model. Long-term Brand Memory changes still require confirmation.</p></div>
+    <div class="studio-layout">
+      <form class="content-studio-form" id="contentStudioForm">
+        <label>1. Choose Brand<select name="brandId" required>${renderBrandOptions(selectedBrand)}</select></label>
+        <label>2. Choose goal<select name="objective"><option>Awareness</option><option>Lead</option><option>Sales</option><option>Education</option></select></label>
+        <label>3. Choose format<select name="format"><option>Short video</option><option>UGC</option><option>Founder content</option><option>Ad</option><option>Landing page</option></select></label>
+        <label>Platform<select name="platform"><option>Instagram Reels</option><option>TikTok</option><option>YouTube Shorts</option><option>LinkedIn</option><option>Multi-platform</option></select></label>
+        <label>4. Theme or customer question<textarea name="topic" placeholder="What should this content help the audience understand, decide, or do?"></textarea></label>
+        <label>5. Source material<textarea name="sourceMaterial" placeholder="Paste notes, feedback, product details, a customer quote, or a rough idea."></textarea></label>
+        <button class="primary-btn" type="submit">Create local content draft</button>
+      </form>
+      <section class="content-output-panel">${renderContentOutput(active)}</section>
+    </div>
+  `;
+}
+
+function renderContentLibrary() {
+  const allItems = window.ShortFormContentOS?.listContent?.({}) || [];
+  const items = allItems.filter((item) => activeLibraryFilter === "all" || item.status === activeLibraryFilter).filter((item) => activeLibraryBrand === "all" || item.brandId === activeLibraryBrand).filter((item) => activeLibraryPlatform === "all" || item.platform === activeLibraryPlatform).filter((item) => activeLibraryFormat === "all" || item.format === activeLibraryFormat);
+  const brands = getBrands();
+  const platforms = [...new Set(allItems.map((item) => item.platform).filter(Boolean))];
+  const formats = [...new Set(allItems.map((item) => item.format).filter(Boolean))];
+  return `
+    <div class="library-hero"><span>Content Library</span><h3>Every draft, decision, version, and result in one place.</h3><p>Content moves through Idea, Draft, Review, Approved, Published, and Learned. Use the same Brand Brain to create the next version without restarting context.</p></div>
+    <div class="library-filter-bar"><button type="button" class="${activeLibraryFilter === "all" ? "active" : ""}" data-library-filter="all">All ${allItems.length}</button><button type="button" class="${activeLibraryFilter === "Draft" ? "active" : ""}" data-library-filter="Draft">Draft</button><button type="button" class="${activeLibraryFilter === "Review" ? "active" : ""}" data-library-filter="Review">Review</button><button type="button" class="${activeLibraryFilter === "Published" ? "active" : ""}" data-library-filter="Published">Published</button><button type="button" class="${activeLibraryFilter === "Learned" ? "active" : ""}" data-library-filter="Learned">Learned</button><select data-library-select="brand"><option value="all">All Brands</option>${brands.map((brand) => `<option value="${brand.id}"${activeLibraryBrand === brand.id ? " selected" : ""}>${escapeHtml(brand.name)}</option>`).join("")}</select><select data-library-select="platform"><option value="all">All platforms</option>${platforms.map((platform) => `<option value="${escapeHtml(platform)}"${activeLibraryPlatform === platform ? " selected" : ""}>${escapeHtml(platform)}</option>`).join("")}</select><select data-library-select="format"><option value="all">All formats</option>${formats.map((format) => `<option value="${escapeHtml(format)}"${activeLibraryFormat === format ? " selected" : ""}>${escapeHtml(format)}</option>`).join("")}</select></div>
+    <div class="content-library-grid">
+      ${items.length ? items.map((item) => {
+        const brand = window.ShortFormContentOS.getBrand(item.brandId);
+        return `<article data-library-card data-status="${item.status}"><span>${escapeHtml(item.status)} / ${escapeHtml(item.format)}</span><h4>${escapeHtml(item.topic || "Untitled topic")}</h4><p>${escapeHtml(brand?.name || "Unknown brand")} - ${escapeHtml(item.platform)}</p><small>${escapeHtml(item.output?.hooks?.[0] || "No hook")}</small><div><button type="button" data-content-action="open" data-content-id="${item.id}">Open</button><button type="button" data-content-action="duplicate" data-content-id="${item.id}">Duplicate</button><button type="button" data-content-action="rewrite" data-content-id="${item.id}">Rewrite</button><button type="button" data-content-action="repurpose" data-content-id="${item.id}">Repurpose</button><button type="button" data-content-action="advance" data-content-id="${item.id}">Advance</button><button type="button" data-content-action="record-performance" data-content-id="${item.id}">Record result</button></div></article>`;
+      }).join("") : `<article class="content-empty"><strong>No content projects yet</strong><p>Create the first content project from a Brand Brain.</p></article>`}
+    </div>
+  `;
+}
+
+function renderContentCalendar() {
+  const items = window.ShortFormContentOS?.listContent?.({}) || [];
+  const planned = items
+    .filter((item) => ["Draft", "Review", "Approved"].includes(item.status))
+    .sort((a, b) => {
+      if (a.scheduledAt && b.scheduledAt) return a.scheduledAt.localeCompare(b.scheduledAt);
+      if (a.scheduledAt) return -1;
+      if (b.scheduledAt) return 1;
+      return b.updatedAt - a.updatedAt;
+    })
+    .slice(0, 12);
+  return `
+    <div class="calendar-hero"><span>Calendar</span><h3>Turn approved ideas into a simple publishing rhythm.</h3><p>Save a local publish date for each project. This does not publish to social platforms; after it goes live, mark it Published or Learned and record the result.</p></div>
+    <div class="content-calendar">${planned.length ? planned.map((item, index) => `<article><span>${item.scheduledAt ? `Planned ${escapeHtml(item.scheduledAt)}` : `Backlog ${index + 1}`}</span><strong>${escapeHtml(item.topic || "Untitled content")}</strong><p>${escapeHtml(item.format)} / ${escapeHtml(item.platform)} / ${escapeHtml(item.status)}</p><label class="calendar-schedule-label">Publish date<input type="date" data-schedule-input="${item.id}" value="${escapeHtml(item.scheduledAt || "")}" /></label><div class="calendar-actions"><button type="button" data-content-action="schedule" data-content-id="${item.id}">${item.scheduledAt ? "Update date" : "Add to calendar"}</button>${item.scheduledAt ? `<button type="button" data-content-action="unschedule" data-content-id="${item.id}">Remove date</button>` : ""}<button type="button" data-content-action="advance" data-content-id="${item.id}">Move forward</button></div></article>`).join("") : `<article><strong>No content in the publishing queue</strong><p>Create a draft, review it, then save a publish date here.</p></article>`}</div>
+  `;
+}
+
+function renderLearning() {
+  const brands = getBrands();
+  const brand = getCurrentBrand() || brands[0];
+  const learning = brand ? window.ShortFormContentOS.getLearning(brand.id) : { total: 0, learned: 0, topHook: "Pending", topCta: "Pending", revisions: [], nextTest: "Create a Brand and publish one piece of content first." };
+  return `
+    <div class="learning-hero"><span>Learning Memory</span><h3>Let content decisions compound.</h3><p>Start with manually entered results. The goal is not a fake performance score; it is remembering which hooks, proof, CTA, and themes survived real review and publication.</p></div>
+    <div class="learning-grid"><article><span>Content projects</span><strong>${learning.total}</strong><p>Created for this Brand.</p></article><article><span>Published or learned</span><strong>${learning.learned}</strong><p>Items with a real outcome to review.</p></article><article><span>Repeated hook</span><strong>${escapeHtml(learning.topHook)}</strong><p>Most often retained opening pattern.</p></article><article><span>Repeated CTA</span><strong>${escapeHtml(learning.topCta)}</strong><p>CTA retained in completed content.</p></article></div>
+    <div class="learning-detail-grid"><article><span>Revision signals</span><ul>${learning.revisions.length ? learning.revisions.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>No revision reasons recorded yet.</li>"}</ul></article><article><span>Next test</span><strong>${escapeHtml(learning.nextTest)}</strong><p>When performance exists, compare one variable at a time instead of producing unrelated variations.</p></article></div>
+  `;
+}
+
+function renderApprovals(data) {
+  const content = window.ShortFormContentOS?.listContent?.({}) || [];
+  const review = content.filter((item) => item.status === "Review");
+  return `
+    <div class="agency-screen-hero"><span>Agency mode / Approvals</span><h3>Keep client review separate from content creation.</h3><p>Only available in Agency mode. Use approval state, revision reason, and owner to stop unbounded changes before they become production work.</p></div>
+    <div class="today-agency-grid"><article><span>In review</span><strong>${review.length}</strong><p>Content projects awaiting a decision.</p></article><article><span>Blocked client sprints</span><strong>${projects.filter((project) => project.approvalState === "Blocked").length}</strong><p>Saved projects needing an owner or next decision.</p></article><article><span>Current bottleneck</span><strong>${escapeHtml(analyzeApprovalBottleneck(data).type)}</strong><p>${escapeHtml(analyzeApprovalBottleneck(data).next)}</p></article></div>
+    ${renderClientOS(data)}
+  `;
+}
+
+function renderReports(data) {
+  return `<div class="agency-screen-hero"><span>Agency mode / Reports</span><h3>Turn learning into the next client conversation.</h3><p>Keep renewal reports, efficiency data, approval history, and delivery packs in the advanced Agency workflow.</p></div>${renderDeliveryPacks(data)}`;
+}
+
 function getTrendInput(data) {
   return (data.trendInput || "a live hashtag, sound, comment, or format").trim() || "a live hashtag, sound, comment, or format";
 }
@@ -934,8 +1201,12 @@ async function syncCloudData() {
   cloudSyncInProgress = true;
   setCloudStatus("Cloud sync in progress...", "syncing");
   try {
-    projects = await window.ShortFormCloud.syncProjects(projects);
-    persistProjects();
+    const result = await window.ShortFormCloud.syncContentWorkspace({
+      mode: workspaceMode || "brand",
+      brands: getBrands(),
+      content: window.ShortFormContentOS.listContent({}),
+    });
+    window.ShortFormContentOS.replaceData(result);
     renderProjectList();
     generate();
     await refreshCloudStatus();
@@ -955,23 +1226,71 @@ function downloadText(filename, content, mimeType = "text/markdown;charset=utf-8
   URL.revokeObjectURL(url);
 }
 
+function buildTestEvidenceExport() {
+  const feedback = window.ShortFormContentOS?.listFeedback?.() || [];
+  const usage = window.ShortFormContentOS?.getUsageSummary?.() || { total: 0, counts: {} };
+  const counts = usage.counts || {};
+  const rows = feedback.map((entry, index) => `## Response ${index + 1}\n\n- Date: ${new Date(entry.createdAt).toISOString()}\n- Role: ${entry.role || "Not recorded"}\n- Usefulness: ${entry.rating || "Not recorded"}/5\n- Willingness to pay: ${entry.wouldPay || "Not recorded"}\n- Blocker: ${entry.blocker || "Not recorded"}\n- Reason to reopen: ${entry.nextValue || "Not recorded"}\n- Quote: ${entry.quote || "Not recorded"}`).join("\n\n");
+  return `# ShortForm Content OS Test Evidence\n\n## Local usage\n\n- Workspace opens: ${counts.workspace_opened || 0}\n- Content projects created: ${counts.content_created || 0}\n- Performance entries recorded: ${counts.performance_recorded || 0}\n- Exports used: ${counts.export_used || 0}\n- Feedback responses: ${feedback.length}\n- Total tracked events: ${usage.total || 0}\n\n## Feedback responses\n\n${rows || "No feedback responses saved yet."}`;
+}
+
+function buildContentLearningExport() {
+  const brands = getBrands();
+  const sections = brands.map((brand) => {
+    const items = window.ShortFormContentOS.listContent({ brandId: brand.id });
+    const learning = window.ShortFormContentOS.getLearning(brand.id);
+    const missing = window.ShortFormContentOS.missingBrandFields(brand);
+    const outcomes = items.filter((item) => String(item.performance?.value || "").trim());
+    const revisions = items.filter((item) => String(item.revisionReason || "").trim());
+    const projectRows = items.map((item) => {
+      const result = item.performance?.value ? `\n  - Result: ${item.performance.metric || "Manual result"}: ${item.performance.value}` : "";
+      const lesson = item.performance?.notes ? `\n  - Learning: ${item.performance.notes}` : "";
+      const revision = item.revisionReason ? `\n  - Revision reason: ${item.revisionReason}` : "";
+      const schedule = item.scheduledAt ? `\n  - Planned publish date: ${item.scheduledAt}` : "";
+      return `- ${item.topic || "Untitled content project"} (${item.format || "Content"} / ${item.platform || "Platform"} / ${item.status})${schedule}${result}${lesson}${revision}`;
+    }).join("\n") || "- No content projects saved yet.";
+    const revisionRows = revisions.map((item) => `- ${item.topic || "Untitled content project"}: ${item.revisionReason}`).join("\n") || "- No revision reasons recorded yet.";
+    const outcomeRows = outcomes.map((item) => `- ${item.topic || "Untitled content project"}: ${item.performance.metric || "Manual result"} = ${item.performance.value}${item.performance.notes ? ` (${item.performance.notes})` : ""}`).join("\n") || "- No published results recorded yet.";
+    return `## ${brand.name}\n\n### Brand readiness\n\n- Category: ${brand.category || "Not recorded"}\n- Missing context: ${missing.length ? missing.join(", ") : "No urgent gaps recorded"}\n- Saved winning pattern: ${brand.winningPatterns || "No pattern saved yet"}\n\n### Content activity\n\n- Total content projects: ${learning.total}\n- Published or learned projects: ${learning.learned}\n- Reusable hook: ${learning.topHook}\n- Reusable CTA: ${learning.topCta}\n\n### Recorded results\n\n${outcomeRows}\n\n### Revision signals\n\n${revisionRows}\n\n### Next content test\n\n${learning.nextTest}\n\n### Content records\n\n${projectRows}`;
+  });
+  return `# ShortForm Content OS Brand Learning Report\n\nGenerated locally on ${new Date().toLocaleDateString()}. This report only contains content, feedback, and performance entered on this device.\n\n${sections.join("\n\n") || "No Brand Brains saved yet. Create one before exporting a learning report."}`;
+}
+
+function buildContentWorkspaceExport() {
+  const brands = getBrands();
+  const content = window.ShortFormContentOS.listContent({});
+  const rows = content.map((item) => {
+    const brand = window.ShortFormContentOS.getBrand(item.brandId);
+    const source = item.sourceMaterial ? `\n- Project source: ${item.sourceMaterial}` : "";
+    const schedule = item.scheduledAt ? `\n- Planned publish date: ${item.scheduledAt}` : "";
+    return `## ${item.topic || "Untitled content project"}\n\n- Brand: ${brand?.name || "Unknown Brand"}\n- Goal: ${item.objective || "Not recorded"}\n- Format: ${item.format || "Not recorded"}\n- Platform: ${item.platform || "Not recorded"}\n- Status: ${item.status || "Draft"}${schedule}\n- Angle: ${item.output?.angle || "Not generated"}\n- Primary hook: ${item.output?.hooks?.[0] || "Not generated"}\n- CTA: ${item.output?.cta || "Not generated"}${source}`;
+  }).join("\n\n") || "No content projects saved yet.";
+  return `# ShortForm Content OS Workspace Export\n\n## Brands\n\n${brands.map((brand) => `- ${brand.name}${brand.category ? ` (${brand.category})` : ""}`).join("\n") || "No Brand Brains saved yet."}\n\n## Content projects\n\n${rows}\n\n${buildContentLearningExport()}`;
+}
+
 function exportItemsForView(viewId = "aidesk") {
   const data = getData();
+  const isBrandWorkspace = workspaceMode === "brand";
   const recommendation = {
+    today: "test-evidence",
     website: "website-html",
     efficiency: "renewal-report",
     memory: "renewal-report",
     advisor: "renewal-report",
     packs: "learning-report",
     report: "learning-report",
+    learning: "learning-report",
+    library: "learning-report",
   }[viewId] || "client-delivery-pack";
   const items = [
-    { key: "copy-workspace", label: "Copy workspace", detail: "Copy the full structured workspace", recommended: recommendation === "copy-workspace" },
-    { key: "client-delivery-pack", label: "Client delivery pack", detail: "Download all workspace outputs as Markdown", recommended: recommendation === "client-delivery-pack" },
+    { key: "copy-workspace", label: isBrandWorkspace ? "Copy Brand workspace" : "Copy workspace", detail: "Copy the full structured workspace", recommended: recommendation === "copy-workspace" },
+    { key: "client-delivery-pack", label: isBrandWorkspace ? "Brand workspace pack" : "Client delivery pack", detail: isBrandWorkspace ? "Download Brand, content, and Learning records as Markdown" : "Download all workspace outputs as Markdown", recommended: recommendation === "client-delivery-pack" },
     { key: "website-html", label: "Website HTML", detail: "Download the generated landing page", recommended: recommendation === "website-html" },
     { key: "renewal-report", label: "Renewal report", detail: "Download the current renewal advisor report", recommended: recommendation === "renewal-report" },
-    { key: "learning-report", label: "Learning report", detail: "Download monthly learning and approval analysis", recommended: recommendation === "learning-report" },
+    { key: "learning-report", label: "Learning report", detail: isBrandWorkspace ? "Download content results, revision signals, and the next test" : "Download monthly learning and approval analysis", recommended: recommendation === "learning-report" },
+    { key: "test-evidence", label: "Test evidence", detail: "Download local product feedback and usage evidence", recommended: recommendation === "test-evidence" },
     { key: "backup-all", label: "Backup all client data", detail: "Download a JSON backup of this device", recommended: recommendation === "backup-all" },
+    { key: "restore-backup", label: "Restore local backup", detail: "Replace this device data from a JSON backup", recommended: false },
   ];
   return { data, items };
 }
@@ -996,7 +1315,7 @@ function renderExportMenu(viewId) {
 
 async function recordCloudExport(type) {
   try {
-    await window.ShortFormCloud?.recordExport?.(getCurrentProject(), type);
+    await window.ShortFormCloud?.recordExport?.(activeContentId ? window.ShortFormContentOS.getContent(activeContentId) : null, type);
   } catch {
     // Export remains local when cloud telemetry is unavailable.
   }
@@ -1006,11 +1325,11 @@ async function runExport(action) {
   const data = getData();
   const filename = data.clientName || "client";
   if (action === "copy-workspace") {
-    await navigator.clipboard.writeText(latestMarkdown);
+    await navigator.clipboard.writeText(workspaceMode === "brand" ? latestContentWorkspaceExport : latestMarkdown);
     showToast("Workspace copied");
   }
   if (action === "client-delivery-pack") {
-    downloadText(`${filename}-client-delivery-pack.md`, latestMarkdown);
+    downloadText(`${filename}-client-delivery-pack.md`, workspaceMode === "brand" ? latestContentWorkspaceExport : latestMarkdown);
     showToast("Client delivery pack downloaded");
   }
   if (action === "website-html") {
@@ -1021,13 +1340,24 @@ async function runExport(action) {
     showToast("Renewal report downloaded");
   }
   if (action === "learning-report") {
-    downloadText(`${filename}-learning-report.md`, latestDeliveryPacks.monthly || latestRenewalExport);
+    downloadText(`${filename}-brand-learning-report.md`, workspaceMode === "brand" ? latestContentLearningExport : latestDeliveryPacks.monthly || latestRenewalExport);
     showToast("Learning report downloaded");
   }
-  if (action === "backup-all") {
-    downloadText(`shortform-client-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(projects, null, 2), "application/json;charset=utf-8");
-    showToast("Local client backup downloaded");
+  if (action === "test-evidence") {
+    downloadText(`shortform-content-os-test-evidence-${new Date().toISOString().slice(0, 10)}.md`, buildTestEvidenceExport());
+    showToast("Test evidence downloaded");
   }
+  if (action === "backup-all") {
+    const backup = { legacyProjects: projects, contentOS: window.ShortFormContentOS?.exportData?.() || {} };
+    downloadText(`shortform-content-os-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(backup, null, 2), "application/json;charset=utf-8");
+    showToast("Local workspace backup downloaded");
+  }
+  if (action === "restore-backup") {
+    restoreBackupInput.value = "";
+    restoreBackupInput.click();
+    return;
+  }
+  trackUsage("export_used", { action });
   recordCloudExport(action);
 }
 
@@ -1037,6 +1367,7 @@ function activateTab(targetId) {
   const activeTab = [...tabs].find((item) => item.dataset.target === targetId);
   if (activeTab && activeViewTitle) activeViewTitle.textContent = activeTab.textContent.trim();
   renderExportMenu(targetId);
+  trackUsage("view_opened", { view: targetId, mode: workspaceMode || "brand" });
 }
 
 function openBriefDrawer() {
@@ -1068,7 +1399,7 @@ function activateHashTab() {
 }
 
 function renderProjectList() {
-  projectCount.textContent = `${projects.length} projects`;
+  projectCount.textContent = `${projects.length} saved items`;
   const currentId = form.elements.projectId.value;
   projectList.innerHTML = "";
 
@@ -1125,6 +1456,7 @@ async function saveProject() {
   form.elements.projectId.value = id;
   persistProjects();
   renderProjectList();
+  trackUsage("legacy_project_saved", { projectId: id, mode: workspaceMode || "brand" });
   generate();
   showToast("Project saved locally");
   if (cloudIsReady()) {
@@ -1170,22 +1502,24 @@ function loadSampleClient(sampleKey = "nova") {
   form.reset();
   setFormData({ ...sample, projectId: "" });
   generate();
-  activateTab("aidesk");
+  activateTab("today");
   renderProjectList();
   showToast(`${sample.clientName} sample loaded`);
 }
 
 const aiFieldLabels = {
-  audienceMemory: "Audience memory",
-  brandBrain: "Brand Brain",
-  redLines: "Red lines",
-  assets: "Proof assets",
-  winningPattern: "Winning pattern",
-  testResult: "Latest learning",
+  positioning: "Brand positioning",
+  audience: "Audience",
+  offer: "Offer",
+  voice: "Voice",
+  proof: "Proof",
+  products: "Products",
+  prohibitedClaims: "Prohibited claims",
+  competitors: "Competitors",
+  winningPatterns: "Winning patterns",
+  contentExamples: "Content examples",
+  customerObjections: "Customer objections",
   revisionReason: "Revision reason",
-  notes: "Project notes",
-  approvalOwner: "Approval owner",
-  approvalState: "Approval state",
 };
 
 function renderAiSuggestion() {
@@ -1240,8 +1574,8 @@ async function runCloudAiJob(job) {
   }
   try {
     await syncCloudData();
-    const project = getCurrentProject();
-    const result = await window.ShortFormCloud.runAi(job, project);
+    const content = activeContentId ? window.ShortFormContentOS.getContent(activeContentId) : null;
+    const result = await window.ShortFormCloud.runAi(job, content);
     latestAiSuggestion = { runId: result.runId, job, suggestion: result.suggestion };
     generate();
     activateTab("aidesk");
@@ -1255,13 +1589,16 @@ async function applyAiSuggestion(approved) {
   if (!latestAiSuggestion) return;
   try {
     if (approved) {
+      const content = activeContentId ? window.ShortFormContentOS.getContent(activeContentId) : null;
+      const brand = content ? window.ShortFormContentOS.getBrand(content.brandId) : getCurrentBrand();
+      const updates = {};
       for (const update of latestAiSuggestion.suggestion.proposed_memory_updates || []) {
-        const field = form.elements[update.field];
-        if (!field || !aiFieldLabels[update.field]) continue;
-        field.value = update.value;
+        if (aiFieldLabels[update.field]) updates[update.field] = update.value;
       }
+      if (brand) window.ShortFormContentOS.saveBrand({ ...brand, ...updates });
+      if (updates.revisionReason && content) window.ShortFormContentOS.updateContent(content.id, { revisionReason: updates.revisionReason });
       await window.ShortFormCloud?.setAiDisposition?.(latestAiSuggestion.runId, "approved");
-      await saveProject();
+      if (cloudIsReady()) await syncCloudData();
       showToast("Approved AI updates saved to client memory");
     } else {
       await window.ShortFormCloud?.setAiDisposition?.(latestAiSuggestion.runId, "rejected");
@@ -1279,6 +1616,7 @@ function renderAIDesk(data) {
   const approval = analyzeApprovalBottleneck(data);
   const learning = analyzeLearningLog(data);
   const profile = buildClientProfile(data);
+  const trendDecisionCards = getTrendDecisionCards(data);
   const aiHandoffPrompt = `You are helping prepare a client sprint for ${data.clientName}, a ${data.industry}.
 
 Client memory:
@@ -1325,14 +1663,29 @@ Do not copy a meme, sound, or creator directly. Extract the mechanic and rewrite
   return `
     <div class="ai-desk-hero">
       <span>AI Desk / platform entry</span>
-      <h3>Turn messy client work into a structured operating system.</h3>
-      <p>This is the bridge from the old tool kit to the platform: paste client notes into AI, then store the structured result as profile, brief, approval logic, learning, and renewal material.</p>
+      <h3>Paste notes once. Get a brief, decision reason, and next client action.</h3>
+      <p>Use AI Desk as the entry point for messy emails, DMs, trend links, revision notes, and call summaries. The workspace turns them into client memory, output assets, approval logic, learning, and renewal material.</p>
     </div>
     ${renderCloudAiAssistant()}
     <div class="operator-path">
-      <article><span>Step 1</span><strong>Paste messy notes</strong><p>Use client emails, WhatsApp messages, briefs, call notes, trend links, or revision feedback.</p></article>
-      <article><span>Step 2</span><strong>Review why</strong><p>Each recommendation should show the reason, risk, and next operator action before you send anything to the client.</p></article>
-      <article><span>Step 3</span><strong>Export the pack</strong><p>Turn the structured workspace into AI handoff, approval summary, learning log, renewal report, and output assets.</p></article>
+      <article><span>Step 1</span><strong>Paste messy notes</strong><p>Client email, WhatsApp notes, trend link, revision blocker, and any proof assets go into one handoff.</p></article>
+      <article><span>Step 2</span><strong>Approve the decision</strong><p>Check why it was recommended, what risk it reduces, and the next action before sending client-facing work.</p></article>
+      <article><span>Step 3</span><strong>Export or save learning</strong><p>Send the pack, update the approval tracker, and store the winning pattern for renewal.</p></article>
+    </div>
+    <div class="decision-explain-panel">
+      ${trendDecisionCards
+        .map(
+          (card) => `
+            <article>
+              <span>${escapeHtml(card.label)}</span>
+              <strong>${escapeHtml(card.title)}</strong>
+              <p><b>Why:</b> ${escapeHtml(card.why)}</p>
+              <p><b>Risk reduced:</b> ${escapeHtml(card.risk)}</p>
+              <p><b>Next action:</b> ${escapeHtml(card.next)}</p>
+            </article>
+          `
+        )
+        .join("")}
     </div>
     <div class="ai-desk-grid">
       <article><span>1. Intake cleaner</span><strong>Messy notes -> client profile</strong><p>Use pasted emails, DMs, meeting notes, and briefs to extract audience, offer, proof, red lines, and approval owner.</p></article>
@@ -1729,6 +2082,35 @@ function getWeeklyTrendRefreshRows(data) {
       fit: `Best source for client-specific freshness because it comes from ${data.clientName}'s real audience.`,
       risk: "Do not generalize one comment into the whole strategy without a follow-up test.",
       update: "audienceMemory, winningPattern, FAQ pack, renewal decision",
+    },
+  ];
+}
+
+function getTrendDecisionCards(data) {
+  const rows = getWeeklyTrendRefreshRows(data);
+  const playbook = getTrendPlaybook(data);
+  const approval = analyzeApprovalBottleneck(data);
+  return [
+    {
+      label: "Use this trend only if",
+      title: data.trendSignal || "Trend Remix",
+      why: `The current mechanic is useful when it can support ${data.goal || "the sprint goal"} without breaking brand memory.`,
+      risk: playbook.risk,
+      next: `Update ${rows[0].update}, then create one hook, one proof beat, and one approval question before generating variants.`,
+    },
+    {
+      label: "Approval shortcut",
+      title: approval.next,
+      why: approval.why,
+      risk: `Reduces ${approval.severity.toLowerCase()} approval risk caused by ${approval.type.toLowerCase()}.`,
+      next: approval.nextFasterMove,
+    },
+    {
+      label: "Freshness rule",
+      title: "Source -> signal -> mechanic",
+      why: "Trend sources change faster than client strategy, so only the reusable mechanic should enter the template.",
+      risk: "Prevents copying a meme, sound, or creator surface detail that may be stale, unsafe, or off-brand.",
+      next: "Save source, date, signal, mechanic, client fit, risk, and the exact workspace field to update.",
     },
   ];
 }
@@ -3229,6 +3611,13 @@ function htmlToMarkdown(title, html) {
 function generate() {
   const data = getData();
   const sections = {
+    today: renderToday(),
+    brain: renderBrandBrain(),
+    create: renderCreateStudio(),
+    library: renderContentLibrary(),
+    learning: renderLearning(),
+    approvals: renderApprovals(data),
+    reports: renderReports(data),
     aidesk: renderAIDesk(data),
     advisor: renderAdvisor(data),
     summary: renderSummary(data),
@@ -3243,7 +3632,7 @@ function generate() {
     next: renderNext(data),
     trends: renderTrends(data),
     topics: renderTopics(data),
-    calendar: renderCalendar(data),
+    calendar: renderContentCalendar(),
     quote: renderQuote(data),
     script: renderScript(data),
     report: renderReport(data),
@@ -3281,12 +3670,14 @@ function generate() {
   latestAdvisorReport = buildAdvisorReport(data);
   latestRenewalExport = buildRenewalExport(data);
   latestDeliveryPacks = buildDeliveryPacks(data);
+  latestContentLearningExport = buildContentLearningExport();
+  latestContentWorkspaceExport = buildContentWorkspaceExport();
 }
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   generate();
-  activateTab("aidesk");
+  activateTab("today");
   closeBriefDrawer();
   showToast("Workspace pack generated");
 });
@@ -3299,14 +3690,21 @@ tabs.forEach((tab) => {
   });
 });
 
-openBriefBtn.addEventListener("click", openBriefDrawer);
+openBriefBtn.addEventListener("click", () => {
+  if (workspaceMode !== "agency") {
+    activateTab("brain");
+    document.querySelector("#brain")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  openBriefDrawer();
+});
 closeBriefBtn.addEventListener("click", closeBriefDrawer);
 drawerBackdrop.addEventListener("click", closeBriefDrawer);
 openHelpBtn.addEventListener("click", () => helpDialog.showModal());
 closeHelpBtn.addEventListener("click", () => helpDialog.close());
 helpOpenBriefBtn.addEventListener("click", () => {
   helpDialog.close();
-  openBriefDrawer();
+  openBriefBtn.click();
 });
 helpDialog.addEventListener("click", (event) => {
   if (event.target === helpDialog) helpDialog.close();
@@ -3316,8 +3714,8 @@ document.addEventListener("keydown", (event) => {
 });
 
 jumpWebsiteBtn.addEventListener("click", () => {
-  activateTab("website");
-  document.querySelector("#website").scrollIntoView({ behavior: "smooth", block: "start" });
+  activateTab("create");
+  document.querySelector("#create").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 saveProjectBtn.addEventListener("click", saveProject);
@@ -3402,6 +3800,129 @@ signOutBtn.addEventListener("click", async () => {
   }
 });
 
+modeSwitchBtn.addEventListener("click", () => modeDialog.showModal());
+modeDialog.addEventListener("click", (event) => {
+  const mode = event.target.closest("[data-workspace-mode]")?.dataset.workspaceMode;
+  if (!mode) return;
+  setWorkspaceMode(mode);
+  generate();
+  activateTab("today");
+});
+
+feedbackBtn.addEventListener("click", () => feedbackDialog.showModal());
+closeFeedbackBtn.addEventListener("click", () => feedbackDialog.close());
+feedbackDialog.addEventListener("click", (event) => {
+  if (event.target === feedbackDialog) feedbackDialog.close();
+});
+feedbackForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const response = Object.fromEntries(new FormData(feedbackForm).entries());
+  response.mode = workspaceMode || "brand";
+  response.activeContentId = activeContentId || "";
+  window.ShortFormContentOS.recordFeedback(response);
+  feedbackForm.reset();
+  feedbackDialog.close();
+  generate();
+  activateTab("today");
+  showToast("Feedback saved on this device");
+});
+
+closeRevisionBtn.addEventListener("click", () => revisionDialog.close());
+revisionDialog.addEventListener("click", (event) => {
+  if (event.target === revisionDialog) revisionDialog.close();
+});
+revisionForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = Object.fromEntries(new FormData(revisionForm).entries());
+  const content = window.ShortFormContentOS.getContent(input.contentId);
+  const reason = String(input.reason || "").trim();
+  if (!content || !reason) return;
+  const variant = window.ShortFormContentOS.createContentVariant(content.id, "rewrite", content.platform, reason);
+  activeContentId = variant?.id || content.id;
+  revisionDialog.close();
+  generate();
+  activateTab("create");
+  showToast("Feedback rewrite created and saved to Learning");
+});
+
+closePerformanceBtn.addEventListener("click", () => performanceDialog.close());
+performanceDialog.addEventListener("click", (event) => {
+  if (event.target === performanceDialog) performanceDialog.close();
+});
+performanceForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = Object.fromEntries(new FormData(performanceForm).entries());
+  const content = window.ShortFormContentOS.getContent(input.contentId);
+  const value = String(input.value || "").trim();
+  if (!content || !value) return;
+  window.ShortFormContentOS.recordPerformance(content.id, { metric: input.metric || "Manual result", value, notes: String(input.notes || "").trim() });
+  trackUsage("performance_recorded", { contentId: content.id, metric: input.metric || "Manual result" });
+  performanceDialog.close();
+  generate();
+  activateTab("learning");
+  showToast("Result recorded in Learning");
+});
+
+restoreBackupInput.addEventListener("change", async () => {
+  const file = restoreBackupInput.files?.[0];
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    const contentSnapshot = parsed.contentOS || parsed;
+    if (!window.confirm("Restore this backup and replace the local Brand, content, feedback, and usage data on this device?")) return;
+    window.ShortFormContentOS.importData(contentSnapshot);
+    if (Array.isArray(parsed.legacyProjects)) {
+      projects = parsed.legacyProjects;
+      persistProjects();
+      window.ShortFormContentOS.migrateLegacyProjects(projects);
+    }
+    activeContentId = "";
+    activeContentComparisonId = "";
+    renderProjectList();
+    generate();
+    activateTab("today");
+    trackUsage("backup_restored", { fileName: file.name });
+    showToast("Local backup restored");
+  } catch (error) {
+    showToast(error.message || "Could not restore this backup");
+  } finally {
+    restoreBackupInput.value = "";
+  }
+});
+
+document.addEventListener("submit", (event) => {
+  if (event.target.id === "brandBrainForm") {
+    event.preventDefault();
+    const input = Object.fromEntries(new FormData(event.target).entries());
+    const brand = window.ShortFormContentOS.saveBrand(input);
+    form.elements.clientName.value = brand.name;
+    form.elements.industry.value = brand.category;
+    form.elements.audience.value = brand.audience;
+    form.elements.brandBrain.value = brand.voice;
+    form.elements.assets.value = brand.proof;
+    form.elements.redLines.value = brand.prohibitedClaims;
+    form.elements.winningPattern.value = brand.winningPatterns;
+    generate();
+    activateTab("brain");
+    showToast("Brand Brain saved locally");
+  }
+
+  if (event.target.id === "contentStudioForm") {
+    event.preventDefault();
+    try {
+      const input = Object.fromEntries(new FormData(event.target).entries());
+      const item = window.ShortFormContentOS.createContent(input);
+      activeContentId = item.id;
+      trackUsage("content_created", { contentId: item.id, brandId: item.brandId, format: item.format, platform: item.platform });
+      generate();
+      activateTab("create");
+      showToast("Content draft created from Brand Brain");
+    } catch (error) {
+      showToast(error.message || "Could not create content");
+    }
+  }
+});
+
 document.addEventListener("click", (event) => {
   const sampleKey = event.target.closest("[data-sample]")?.dataset.sample;
   if (sampleKey) {
@@ -3409,7 +3930,165 @@ document.addEventListener("click", (event) => {
   }
 });
 
+document.addEventListener("change", (event) => {
+  const librarySelect = event.target.closest("[data-library-select]");
+  if (!librarySelect) return;
+  const key = librarySelect.dataset.librarySelect;
+  if (key === "brand") activeLibraryBrand = librarySelect.value;
+  if (key === "platform") activeLibraryPlatform = librarySelect.value;
+  if (key === "format") activeLibraryFormat = librarySelect.value;
+  generate();
+  activateTab("library");
+});
+
 document.addEventListener("click", async (event) => {
+  const navTarget = event.target.closest("[data-content-nav]")?.dataset.contentNav;
+  if (navTarget) {
+    activateTab(navTarget);
+    return;
+  }
+
+  if (event.target.closest("[data-open-feedback]")) {
+    feedbackDialog.showModal();
+    return;
+  }
+
+  const brandAction = event.target.closest("[data-brand-action]")?.dataset.brandAction;
+  if (brandAction === "extract") {
+    const source = document.querySelector("#brandMemorySource")?.value || "";
+    latestBrandExtraction = window.ShortFormContentOS.extractBrandMemory(source);
+    generate();
+    activateTab("brain");
+    showToast(Object.keys(latestBrandExtraction || {}).length ? "Field suggestions ready to review" : "Add labelled notes to extract fields");
+    return;
+  }
+  if (brandAction === "apply-extraction") {
+    const editor = document.querySelector("#brandBrainForm");
+    if (editor && latestBrandExtraction) {
+      Object.entries(latestBrandExtraction).forEach(([field, value]) => {
+        const input = editor.elements[field];
+        if (input && !String(input.value || "").trim()) input.value = value;
+      });
+      showToast("Suggestions added to the form; review and save");
+    }
+    return;
+  }
+  if (brandAction === "new") {
+    const editor = document.querySelector("#brandBrainForm");
+    if (editor) {
+      editor.reset();
+      editor.querySelectorAll("input, textarea").forEach((field) => {
+        field.value = "";
+      });
+      latestBrandExtraction = null;
+      generate();
+      activateTab("brain");
+    }
+    return;
+  }
+
+  const libraryFilter = event.target.closest("[data-library-filter]")?.dataset.libraryFilter;
+  if (libraryFilter) {
+    activeLibraryFilter = libraryFilter;
+    generate();
+    activateTab("library");
+    return;
+  }
+
+  const librarySelect = event.target.closest("[data-library-select]");
+  if (librarySelect) {
+    const key = librarySelect.dataset.librarySelect;
+    if (key === "brand") activeLibraryBrand = librarySelect.value;
+    if (key === "platform") activeLibraryPlatform = librarySelect.value;
+    if (key === "format") activeLibraryFormat = librarySelect.value;
+    generate();
+    activateTab("library");
+    return;
+  }
+
+  const contentAction = event.target.closest("[data-content-action]")?.dataset.contentAction;
+  const contentId = event.target.closest("[data-content-id]")?.dataset.contentId;
+  if (contentAction && contentId) {
+    const content = window.ShortFormContentOS.getContent(contentId);
+    if (contentAction === "open") {
+      activeContentId = contentId;
+      generate();
+      activateTab("create");
+      return;
+    }
+    if (contentAction === "duplicate") {
+      const copy = window.ShortFormContentOS.duplicateContent(contentId);
+      activeContentId = copy?.id || "";
+      generate();
+      activateTab("library");
+      showToast("Content project duplicated");
+      return;
+    }
+    if (contentAction === "advance") {
+      window.ShortFormContentOS.advanceContent(contentId);
+      generate();
+      showToast("Content status updated");
+      return;
+    }
+    if (contentAction === "schedule" || contentAction === "unschedule") {
+      const dateInput = document.querySelector(`[data-schedule-input="${contentId}"]`);
+      const scheduledAt = contentAction === "schedule" ? String(dateInput?.value || "") : "";
+      if (contentAction === "schedule" && !scheduledAt) {
+        showToast("Choose a publish date first");
+        return;
+      }
+      window.ShortFormContentOS.scheduleContent(contentId, scheduledAt);
+      trackUsage(scheduledAt ? "content_scheduled" : "content_unscheduled", { contentId, scheduledAt });
+      generate();
+      activateTab("calendar");
+      showToast(scheduledAt ? "Publish date saved locally" : "Publish date removed");
+      return;
+    }
+    if (contentAction === "compare") {
+      activeContentComparisonId = activeContentComparisonId === contentId ? "" : contentId;
+      generate();
+      activateTab("create");
+      return;
+    }
+    if (contentAction === "rewrite" || contentAction === "repurpose") {
+      let platform = content.platform;
+      if (contentAction === "rewrite") {
+        revisionForm.elements.contentId.value = content.id;
+        revisionForm.elements.reason.value = content.revisionReason || "";
+        revisionDialog.showModal();
+        return;
+      }
+      if (contentAction === "repurpose") {
+        platform = window.prompt("Repurpose for which platform?", content.platform || "Instagram Reels");
+        if (!platform) return;
+      }
+      const variant = window.ShortFormContentOS.createContentVariant(contentId, contentAction, platform);
+      activeContentId = variant?.id || contentId;
+      generate();
+      activateTab("create");
+      showToast(contentAction === "repurpose" ? "Platform variant created" : "Feedback rewrite created");
+      return;
+    }
+    if (contentAction === "save-memory" && content) {
+      const brand = window.ShortFormContentOS.getBrand(content.brandId);
+      if (brand) {
+        const nextPattern = [brand.winningPatterns, content.output?.hooks?.[0]].filter(Boolean).join("\n");
+        window.ShortFormContentOS.saveBrand({ ...brand, winningPatterns: nextPattern });
+        generate();
+        showToast("Content pattern saved to Brand Memory");
+      }
+      return;
+    }
+    if (contentAction === "record-performance" && content) {
+      performanceForm.elements.contentId.value = content.id;
+      performanceForm.elements.metric.value = content.performance?.metric || "Saves";
+  performanceForm.elements["value"].value = content.performance?.value || "";
+      performanceForm.elements.notes.value = content.performance?.notes || "";
+      performanceDialog.showModal();
+      return;
+    }
+  }
+
   const exportAction = event.target.closest("[data-export-action]")?.dataset.exportAction;
   if (exportAction) {
     exportMenu.hidden = true;
@@ -3510,10 +4189,20 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+trackUsage("workspace_opened", { mode: workspaceMode || "brand" });
 generate();
 renderProjectList();
+if (workspaceMode) {
+  setWorkspaceMode(workspaceMode);
+} else {
+  document.body.dataset.workspaceMode = "brand";
+  document.querySelectorAll(".agency-only").forEach((element) => {
+    element.hidden = true;
+  });
+  modeDialog.showModal();
+}
 activateHashTab();
-renderExportMenu([...tabs].find((tab) => tab.classList.contains("active"))?.dataset.target || "aidesk");
+renderExportMenu([...tabs].find((tab) => tab.classList.contains("active"))?.dataset.target || "today");
 refreshCloudStatus();
 window.addEventListener("shortform:cloud-status", (event) => {
   const detail = event.detail || {};
